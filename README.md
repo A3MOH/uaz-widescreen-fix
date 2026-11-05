@@ -36,7 +36,7 @@
 **Необязательно, но рекомендуется**:
 - [DXVK](https://github.com/doitsujin/dxvk): 32-битный `d3d9.dll` рядом с
   `4x4game.exe`. Исправляет вылеты в полноэкранном режиме (`D3DERR_DEVICELOST`).
-- [Large Address Aware Patcher](https://ntcore.com/files/4gb_patch.zip) для патча 4x4game.exe
+- [Large Address Aware Patcher](https://ntcore.com/files/4gb_patch.zip) для патча 4x4game.exe для использования 4GB адресного пространства(уменьшит вылеты на современных системах)
 
 Для сборки через `build.ps1`:
 
@@ -139,7 +139,7 @@ The originals are kept as `code.pak.bak` and `code_inf.pak.bak`.
 **Optional but recommended**: 
 - [DXVK](https://github.com/doitsujin/dxvk) 32-bit `d3d9.dll` next to
   `4x4game.exe`. It fixes crashes in fullscreen mode (`D3DERR_DEVICELOST`).
-- [Large Address Aware Patcher](https://ntcore.com/files/4gb_patch.zip) to patch 4x4game.exe
+- [Large Address Aware Patcher](https://ntcore.com/files/4gb_patch.zip) to patch 4x4game.exe to use 4GB address space
 
 To rebuild with `build.ps1`:
 
