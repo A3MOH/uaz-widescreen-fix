@@ -1,0 +1,315 @@
+$SPECPOW(f, 3)
+
+shader()
+{// wet roads, ps2
+	SurfaceID(SRFTYPE)
+	Shaderquality(4)
+    Cull("cw")
+    pass()
+    {
+        Vertexshader("RoadWet.vsh")
+        Pixelshader("RoadWet20.psh")
+
+        tmu()
+        {
+            texture()
+            {
+                Image(%colortexture)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+        }
+        tmu()
+        {
+            texture()
+            {
+                Image(%detail1texture)
+            }
+        }
+        tmu()
+        {
+            texture()
+            {
+                Image(%detail2texture)
+            }
+        }
+        tmu()
+        {
+            texture()
+            {
+                Image(%colortexturesmall)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+        }
+        !include("__Clouds.mtt")
+        !include("__Tex1.mtt")
+        tmu()
+        {
+            texture()
+            {
+                Image("PuddleNoise.dds")
+            }
+        }
+    }
+
+    lightpass()
+    !include("SpotShadowMapVS.mtt")
+    !include("SpotTerrainVS.mtt")
+}
+
+shader()
+{// >= gffx
+	SurfaceID(SRFTYPE)
+	Shaderquality(3)
+    Cull("cw")
+    pass()
+    {
+        Lighting()
+        Pixelshader("Road14.psh")
+
+        !include("__TerrainColormap.mtt")
+        !include("__TerrainDetail1.mtt")
+        !include("__TerrainDetail2.mtt")
+        !include("__TerrainColormapSmall.mtt")
+        !include("__Clouds.mtt")
+        !include("__Tex1.mtt")
+
+        AmbientColor(0, 0, 0, 1.000)
+		DiffuseColor(0, 0, 0, 1.000)
+		SpecularColor(1.000, 1.000, 1.000, 1.000)
+		EmissiveColor(0.000, 0.000, 0.000, 1.000)
+		SpecularPow(SPECPOW)
+    }
+
+    lightpass()
+    !include("SpotShadowmap.mtt")
+    !include("SpotRoad14.mtt")
+}
+
+shader()
+{// >= gffx
+	SurfaceID(SRFTYPE)
+	Shaderquality(2)
+    Cull("cw")
+    pass()
+    {
+        Lighting()
+        Pixelshader("RoadLow14.psh")
+
+        !include("__TerrainColormap.mtt")
+        !include("__TerrainDetail1.mtt")
+        !include("__TerrainDetail2.mtt")
+        !include("__TerrainColormapSmall.mtt")
+        !include("__Tex1.mtt")
+
+        AmbientColor(0, 0, 0, 1.000)
+		DiffuseColor(0, 0, 0, 1.000)
+		SpecularColor(1.000, 1.000, 1.000, 1.000)
+		EmissiveColor(0.000, 0.000, 0.000, 1.000)
+		SpecularPow(SPECPOW)
+    }
+
+    lightpass()
+    !include("SpotShadowmapLow.mtt")
+    !include("SpotRoad14.mtt")
+}
+
+
+shader()
+{// >=gf3
+	SurfaceID(SRFTYPE)
+	Shaderquality(3)
+    Cull("cw")
+    pass()
+    {
+        Pixelshader("Road11_1.psh")
+
+        !include("__TerrainColormap.mtt")
+        !include("__TerrainDetail1.mtt")
+        !include("__TerrainDetail2.mtt")
+        !include("__TerrainColormapSmall.mtt")
+    }
+    pass()
+    {
+        Lighting()
+        Pixelshader("Road11_2.psh")
+        !include("__Tex1.mtt")
+        !include("__TerrainColormap.mtt")
+        !include("__Clouds.mtt")
+
+        AmbientColor(0, 0, 0, 1.000)
+		DiffuseColor(0, 0, 0, 1.000)
+		SpecularColor(1.000, 1.000, 1.000, 1.000)
+		EmissiveColor(0.000, 0.000, 0.000, 1.000)
+		SpecularPow(SPECPOW)
+		DepthFunc("lequal", 0)
+		BlendFunc("src_alpha", "inv_src_alpha")
+    }
+    pass()
+    {
+        Pixelshader("Road11_3.psh")
+
+        !include("__TerrainColormap.mtt")
+        !include("__Clouds.mtt")
+		DepthFunc("lequal", 0)
+        BlendFunc("zero", "inv_src_color")
+        BlackFog()
+    }
+
+
+    lightpass()
+    !include("SpotShadowmap.mtt")
+    !include("SpotRoad.mtt")
+}
+
+
+shader()
+{// >=gf3
+	SurfaceID(SRFTYPE)
+	Shaderquality(2)
+    Cull("cw")
+    pass()
+    {
+        Pixelshader("TerrainLow.psh")
+
+        !include("__TerrainColormap.mtt")
+        !include("__TerrainDetail1.mtt")
+        !include("__TerrainDetail2.mtt")
+        !include("__DetailsMask.mtt")
+    }
+    pass()
+    {
+        Lighting()
+        Pixelshader("RoadLow.psh")
+
+        !include("__Tex1.mtt")
+        !include("__TerrainColormap.mtt")
+
+        AmbientColor(0, 0, 0, 1.000)
+		DiffuseColor(0, 0, 0, 1.000)
+		SpecularColor(1.000, 1.000, 1.000, 1.000)
+		EmissiveColor(0.000, 0.000, 0.000, 1.000)
+		SpecularPow(SPECPOW)
+		DepthFunc("lequal", 0)
+		BlendFunc("src_alpha", "inv_src_alpha")
+    }
+
+    lightpass()
+    !include("SpotShadowmapLow.mtt")
+    !include("SpotRoad.mtt")
+}
+
+shader()
+{// >=gf3
+	SurfaceID(SRFTYPE)
+	Shaderquality(1)
+    Cull("cw")
+    pass()
+    {
+        Lighting()
+        Pixelshader("RoadVeryLow.psh")
+
+        !include("__TerrainColormap.mtt")
+        !include("__TerrainDetail1.mtt")
+        !include("__Tex1.mtt")
+
+        AmbientColor(0, 0, 0, 1.000)
+		DiffuseColor(0, 0, 0, 1.000)
+		SpecularColor(1.000, 1.000, 1.000, 1.000)
+		EmissiveColor(0.000, 0.000, 0.000, 1.000)
+		SpecularPow(SPECPOW)
+    }
+
+    lightpass()
+    !include("SpotShadowmapVeryLow.mtt")
+    !include("SpotRoad.mtt")
+}
+
+
+shader()
+{//gf2
+	SurfaceID(SRFTYPE)
+    Cull("cw")
+    Shaderquality(1)
+    pass()
+    {
+        tmu()
+        {
+            TexGen("planar")
+			TexMod("scale", "const", %terrain_inv_x, 0, 0, "const", %terrain_inv_z, 0, 0)
+            texture()
+            {
+                Image(%colortexture)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+            ColorOp("mul_add", "texture_a", "inv_tfactor_a", "tfactor_a")
+        }
+
+        tmu()
+        {
+			ColorOp("mul", "tfactor", "current", "current")
+        }
+        tfactor(%daycolor_r, %daycolor_g, %daycolor_b, %ambient_a)
+    }
+    lightpass()
+    !include("SpotShadowmapVeryLow.mtt")
+    !include("spot_spotmap.mtt")
+	pass()
+	{
+        tmu()
+        {
+            texture()
+            {
+                Mapchannel(0)
+                Image(TEXTURE1)
+                !include(TEX1OPTIONSFILE)
+            }
+            ColorOp("arg1", "inv_texture", "current", "current")
+        }
+		DepthFunc("lequal", 0)
+        BlendFunc("zero", "inv_src_color")
+        BlackFog()
+    }
+
+}
+
+
+
+shader()
+{//gf2
+	SurfaceID(SRFTYPE)
+    Cull("cw")
+    Shaderquality(0)
+    pass()
+    {
+        tmu()
+        {
+            TexGen("planar")
+            TexMod("scale", "const", %terrain_inv_x, 0, 0, "const", %terrain_inv_z, 0, 0)
+            texture()
+            {
+                Image(%colortexture)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+            ColorOp("arg2", "texture", "tfactor", "current")
+            AlphaOp("mul_add", "texture", "inv_tfactor", "tfactor")
+        }
+        tmu()
+        {
+            texture()
+            {
+                Mapchannel(0)
+                Image(TEXTURE1)
+                !include(TEX1OPTIONSFILE)
+            }
+            ColorOp("mul", "texture", "current", "current")
+            AlphaOp("arg2", "texture", "current", "current")
+        }
+        BlendFunc("src_alpha", "zero")
+        tfactor(%daycolor_r, %daycolor_g, %daycolor_b, %ambient_a)
+    }
+    lightpass()
+    !include("SpotShadowmapVeryLow.mtt")
+    !include("spot_spotmap.mtt")
+}
+
+

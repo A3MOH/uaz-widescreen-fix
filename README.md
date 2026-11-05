@@ -88,17 +88,23 @@ Copy-Item <GAME INSTALL DIR>\code_inf.pak.bak <GAME INSTALL DIR>\code_inf.pak -F
 Части патча можно отключить без пересборки. Создайте пустой файл в `widescreen_patch\`
 (или переименуйте соответствующий файл `.off` из комплекта), затем перезапустите игру:
 
-| Файл | Действие |
-|---|---|
-| `no_aspect.txt` | Отключает масштабирование UI в 4:3 (интерфейс растягивается, как в оригинале) |
-| `no_reslist.txt` | Возвращает оригинальный список из 6 разрешений |
+| Файл | Действие | Конфиг |
+|---|---|---|
+| `no_aspect.txt` | Отключает масштабирование UI в 4:3 (интерфейс растягивается, как в оригинале) | |
+| `no_reslist.txt` | Возвращает оригинальный список из 6 разрешений | |
+| `no_fov.txt` |	FOV-коррекция для широкоэкранных разрешений | |
+| `no_view.txt` |	коррекция дальности отрисовки из-за изменения FOV | `view_distance.txt` - мультипликатор дальности [0,10] |
+| `no_look_turn.txt` |	В камере из кабины камера подворачивает за рулём в сторону поворота | `look_turn.txt` - макс угол поворота камеры в градусах и сглаживание поворота камеры(меньше - резче) |
+| `no_glass_drops.txt` |	Капельки дождя на лобовом(**WIP, ТОЛЬКО НА ПЕРВУЮ ЧАСТЬ**) | `glass_drops.txt` ([0,20], [0,20]): первая цифра - реакция на ускорение/торможение, второе - реакция на ухабы| 
+| `no_wetness.txt` |	Мокрый террейн и лужи (**WIP, ТОЛЬКО НА ПЕРВУЮ ЧАСТЬ**)| `wetness.txt`: ([0.0,2.0], [-1,1]): первая задает размер "луж", вторая - интенсивность эффекта(-1 - следует игровой логике, т.е работает только на картах с дождем) |
+
+Для капель и мокрого террейна необходимо скачать шейдеры из `rain_drops`, закинуть так же в папку с игрой, запустить `install.ps1`. Скрипт перезапишет нужные игровые шейдеры и добавит свои
 
 ## Известные ограничения
 
 - Выбор шрифта и общий масштаб текста следуют ширине области 4:3 (`XpandRallyFonts`). Сама
   отрисовка символов происходит внутри `ChromeEngine2.dll` и не изменяется.
 - 3D-фон меню и мини-карта HUD используют собственные расчёты и не изменяются.
-- Редактор интерфейса (классы `UIE*`) не адаптирован.
 - В некоторых местах текст выровнен неправильно, ещё ищу причину.
 
 ---
@@ -196,11 +202,15 @@ You can turn parts of the patch off without rebuilding. Create an empty file in
 |---|---|
 | `no_aspect.txt` | Turns off the 4:3 UI scaling (UI stretches like the original) |
 | `no_reslist.txt` | Brings back the original 6-mode resolution list |
+| `no_fov.txt` |	Wider field of view on widescreens |
+| `no_view.txt` |	Longer draw distance and view_distance.txt |
+| `no_glass_drops.txt` |	Windshield drops moving with braking and bumps(**WIP**) |
+| `no_wetness.txt` |	Wet ground: no wetness at all, ground stays dry |
+| `no_look_turn.txt` |	Cockpit camera looking into turns |
 
 ## Known limits
 
 - Font choice and global text scale follow the 4:3 UI width (`XpandRallyFonts`). Glyph drawing
   itself happens inside `ChromeEngine2.dll` and is not changed.
 - The 3D menu backdrop and HUD minimap use their own math and are not changed.
-- The UI editor (`UIE*` classes) is not adjusted.
 - Some text alignment here and there is misplaced, will look for it

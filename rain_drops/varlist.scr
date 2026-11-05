@@ -1,0 +1,132 @@
+// auto-generated file. change with caution!!!
+
+// Dirt color
+VarFloat("dirtcolor_r", 0.37)
+VarFloat("dirtcolor_g", 0.34)
+VarFloat("dirtcolor_b", 0.29)
+
+// Dirt type
+VarFloat("dirtsnow", 0.0)
+VarFloat("dirtgravel", 0.0)
+VarFloat("dirtmud", 1.0)
+
+VarFloat("motionblurpower", 0.4)
+
+//noon
+
+//SKY COLOR, RGB = Sky color (top), A = Flag: Turn On/Off lights
+VarFloat("skycolor_r", 0.14)
+VarFloat("skycolor_g", 0.24)
+VarFloat("skycolor_b", 0.56)
+VarFloat("skycolor_a", 0.00)
+
+VarFloat("sunvisibility", 1.00)
+VarFloat("moonvisibility", 0.00)
+
+//DAY COLOR, RGB = Day (light) color, A = ambient for GF2
+VarFloat("daycolor_r", 1.00)
+VarFloat("daycolor_g", 0.95)
+VarFloat("daycolor_b", 0.85)
+VarFloat("daycolor_a", 0.00)
+
+//FOG COLOR, RGB = Fog color, A = Fog Far Factor
+VarFloat("fogcolor_r", 0.68)
+VarFloat("fogcolor_g", 0.78)
+VarFloat("fogcolor_b", 0.82)
+VarFloat("fogcolor_a", 1.00)
+
+//AMBIENT COLOR, RGB = Ambient color (MUL), A = Ambient power - inverted ambient (ADD)
+VarFloat("ambient_r", 0.70)
+VarFloat("ambient_g", 0.70)
+VarFloat("ambient_b", 0.70)
+VarFloat("ambient_a", 0.30)
+
+// wartosci uzywane przy renderowaniu dynamicznej cubemapy
+//SKY COLOR, RGB = Sky color (top)
+VarFloat("dyncubemap_skycolor_r", 0.14)
+VarFloat("dyncubemap_skycolor_g", 0.24)
+VarFloat("dyncubemap_skycolor_b", 0.56)
+VarFloat("dyncubemap_skycolor_a", 0.00)
+
+//DAY COLOR, RGB = Day (light) color,
+VarFloat("dyncubemap_daycolor_r", 1.00)
+VarFloat("dyncubemap_daycolor_g", 0.95)
+VarFloat("dyncubemap_daycolor_b", 0.85)
+VarFloat("dyncubemap_daycolor_a", 0.00)
+
+//FOG COLOR, RGB = Fog color, A = Fog Far Factor
+VarFloat("dyncubemap_fogcolor_r", 0.68)
+VarFloat("dyncubemap_fogcolor_g", 0.78)
+VarFloat("dyncubemap_fogcolor_b", 0.82)
+VarFloat("dyncubemap_fogcolor_a", 1.00)
+
+//AMBIENT COLOR, RGB = Ambient color (MUL), A = Ambient power - inverted ambient (ADD)
+VarFloat("dyncubemap_ambient_r", 0.70)
+VarFloat("dyncubemap_ambient_g", 0.70)
+VarFloat("dyncubemap_ambient_b", 0.70)
+VarFloat("dyncubemap_ambient_a", 0.30)
+
+
+// Rain density default
+VarFloat("RainDropsPercentage", 0.0)
+
+// Ground and car wetness (set by game code)
+VarFloat("wetness", 0.0)
+VarFloat("puddles", 1.0)
+VarFloat("raintime", 0.0)
+VarFloat("rainnow", 0.0)
+
+// Clouds texture
+VarString("cloudstexture", "Clouds.dds")
+
+// when set to 0 disables car lights
+VarInt("CarNightLights", 0)
+
+// depth bias params for blobs and fxes
+VarFloat("zbias", 0.0)
+VarFloat("zsbias", 0.0)
+
+// terrain size for materials
+VarFloat("terrainsize", 0.00001)
+
+// static cubemap file with sun for water
+VarString("watercubemapfile", "CubemapSun.dds")
+
+//default values
+
+VarFloat("detailsborder", 0.85)
+
+VarFloat("sidedetailsize", -0.00025)
+
+VarFloat("detailsize", 0.001)
+
+    VarString("horizontexture", "Horizon_P.dds")
+
+    VarString("worldcubemapfile", "WorldCubemap_P.dds")
+
+    VarString("colortexture", "TerrainColor_P.dds")
+
+    VarString("colortexturesmall", "TerrainColorSmall_P.dds")
+
+    VarString("detail1texture", "TerrainDetail_P.dds")
+
+    VarString("detail2texture", "RoadDetail_P.dds")
+
+	VarString("detailcragtexture", "Rock_P.dds")
+
+    VarString("detailsmask", "DetailsMask_P.dds")
+
+	VarFloat("waterscale", 0.0045)
+
+    VarString("layerstexture", "Layers_N.dds")
+
+VarFloat("button_pulse_alpha", 1.0)
+
+// temp hack
+VarFloat("tape_vis_range", 8000.0)
+
+
+VarFloat("terrain_inv_x", 0.00001)
+VarFloat("terrain_inv_y", 0.00001)
+VarFloat("terrain_inv_z", 0.00001)
+

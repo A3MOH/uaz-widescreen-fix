@@ -1,0 +1,65 @@
+regc( 0, "TFACTOR" )
+regc4f( 3, %ambient_r, %ambient_g, %ambient_b, %sunvisibility )
+regc4f( 5, %daycolor_r, %daycolor_g, %daycolor_b, %daycolor_a )
+
+hlsl("
+#include <common_hlsl.h>
+
+sampler2D	sDrop: register(s0);
+samplerCUBE	sCubemap: register(s1);
+
+const float4 TFactor : register(c0);        // x - bend, y - glint, z - rim dark, w - opacity
+const float4 Ambient_Sun : register(c3);
+const float4 DayColor : register(c5);
+
+struct PS_INPUT
+{
+	float4	Mark : COLOR0;
+	float2	uv : TEXCOORD0;
+	float3	E : TEXCOORD1;
+	float3	L : TEXCOORD2;
+	float3	M0 : TEXCOORD3;
+	float3	M1 : TEXCOORD4;
+	float3	M2 : TEXCOORD5;
+};
+
+float3 ToWorld( float3 v, PS_INPUT i ) {
+	return float3( dot(v, i.M0), dot(v, i.M1), dot(v, i.M2) );
+}
+
+float4 main( PS_INPUT i ): COLOR {
+
+	float4 Drop = tex2D( sDrop, i.uv );
+	float3 Nt = Drop.rgb*2 - 1;
+
+	float3 E = normalize( i.E );
+	float3 L = normalize( i.L );
+	float Side = E.y >= 0 ? 1 : -1;
+
+	// glass space: x - right, y - glass normal, z - up
+	float3 N = normalize( float3( Nt.x, Nt.z*Side, Nt.y ) );
+	float3 Bend = float3( Nt.x, 0, Nt.y );
+
+	// view through drop: lens flips the world
+	float3 D = normalize( -E - Bend*TFactor.x );
+	// view bounced off inner drop surface
+	float NdotE = saturate( dot(N, E) );
+	float3 R = 2*NdotE*N - E;
+
+	float3 Through = texCUBE( sCubemap, ToWorld(D, i) ).rgb;
+	float Fres = pow( 1 - NdotE*NdotE, 2 );
+
+	float Sun = Ambient_Sun.a;
+	float Glint = pow( saturate(dot(D, L)), 80 )*Sun*TFactor.y;
+	float Spec = pow( saturate(dot(R, L)), 30 )*Sun*TFactor.y*0.5;
+
+	float3 Rim = Ambient_Sun.rgb*0.25;
+	float3 Color = lerp( Through, Rim, saturate(Fres*TFactor.z) );
+	Color = (Color + Glint + Spec)*DayColor.rgb;
+
+	float Alpha = Drop.a*i.Mark.a*TFactor.w;
+	Alpha = saturate( Alpha*(0.55 + 0.45*Fres) + (Glint + Spec)*Drop.a*i.Mark.a );
+
+	return float4( saturate(Color), Alpha );
+}
+")

@@ -18,7 +18,89 @@ public class UIAspect
 	static final String SWITCH_DIR = "widescreen_patch/";
 	static boolean s_bAspect = !new java.io.File(SWITCH_DIR + "no_aspect.txt").exists();
 	static boolean s_bResList = !new java.io.File(SWITCH_DIR + "no_reslist.txt").exists();
+	static boolean s_bFov = !new java.io.File(SWITCH_DIR + "no_fov.txt").exists();
+	static boolean s_bView = !new java.io.File(SWITCH_DIR + "no_view.txt").exists();
+	static final float FOV_MAX = 170.0f;
 	static int s_nDumps = 0;
+
+	public static float WidenFOV(float fFov)
+	{
+		if (!s_bFov || fFov <= 0.0f || fFov >= FOV_MAX)
+			return fFov;
+		float w = (float)GameObject.GetScreenWidth();
+		float h = (float)GameObject.GetScreenHeight();
+		if (w <= 0.0f || h <= 0.0f)
+			return fFov;
+		double k = (w / h) / ASPECT;
+		if (k <= 1.0)
+			return fFov;
+		double r = 2.0 * Math.atan(Math.tan(Math.toRadians(fFov) * 0.5) * k);
+		float fOut = (float)Math.toDegrees(r);
+		return fOut > FOV_MAX ? FOV_MAX : fOut;
+	}
+
+	public static void SetFOV(Camera c, float fFov)
+	{
+		c.SetFOV(WidenFOV(fFov));
+	}
+
+	static float s_fViewMul = ReadViewMul();
+
+	static float ReadViewMul()
+	{
+		try
+		{
+			java.io.BufferedReader r = new java.io.BufferedReader(new java.io.FileReader(SWITCH_DIR + "view_distance.txt"));
+			String s = r.readLine();
+			r.close();
+			if (s != null)
+			{
+				float v = Float.parseFloat(s.trim());
+				if (v >= 0.1f && v <= 10.0f)
+					return v;
+			}
+		}
+		catch (Throwable e)
+		{
+		}
+		return 1.0f;
+	}
+
+	public static float ViewRangeMul()
+	{
+		if (!s_bView)
+			return 1.0f;
+		float m = s_fViewMul;
+		if (s_bFov)
+		{
+			float w = (float)GameObject.GetScreenWidth();
+			float h = (float)GameObject.GetScreenHeight();
+			if (w > 0.0f && h > 0.0f)
+			{
+				float k = (w / h) / ASPECT;
+				if (k > 1.0f)
+					m *= k;
+			}
+		}
+		return m;
+	}
+
+	public static void SetObjectsVisibilityRange(GameObject o, float fBlend, float fFade)
+	{
+		float m = ViewRangeMul();
+		o.SetObjectsVisibilityRange(fBlend * m, fFade * m);
+	}
+
+	public static void SetTreesVisibilityRange(Module o, float fBlend, float fRange)
+	{
+		float m = ViewRangeMul();
+		o.SetTreesVisibilityRange(fBlend * m, fRange * m);
+	}
+
+	public static void SetGrassVisMul(Module o, float fMul)
+	{
+		o.SetGrassVisMul(fMul * ViewRangeMul());
+	}
 	static final int MAX_DUMPS = 4;
 
 	public static void DumpTreeOnce(UIWindow w, String sTag)

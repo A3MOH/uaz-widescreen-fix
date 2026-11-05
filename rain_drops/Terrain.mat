@@ -1,0 +1,300 @@
+!include("surface.def")
+
+shader()
+{// >=gffx
+    SurfaceID(SRF_GROUND)
+    Shaderquality(4)
+    Cull("ccw")
+    pass()
+    {
+        vertexshader("TerrainWet.vsh")
+        Pixelshader("TerrainWet20.psh")
+
+        !include("__TerrainColormapVS3.mtt")
+        !include("__TerrainDetail1VS.mtt")
+        !include("__TerrainDetail2VS.mtt")
+        !include("__TerrainColormapSmallVS3.mtt")
+        !include("__CloudsVS.mtt")
+        !include("__WaterDeep.mtt")
+        tmu()
+        {
+            texture()
+            {
+                Image(%detailcragtexture)
+            }
+        }
+        tmu()
+        {
+            texture()
+            {
+                Image("PuddleNoise.dds")
+            }
+        }
+    }
+
+    lightpass()
+
+    !include("SpotShadowMapVS.mtt")
+    !include("omni_2TMU.mtt")
+    !include("SpotTerrainVS.mtt")
+
+}
+
+
+
+shader()
+{// >=gffx
+    SurfaceID(SRF_GROUND)
+    Shaderquality(3)
+    Cull("ccw")
+    pass()
+    {
+        Pixelshader("Terrain14.psh")
+
+        !include("__TerrainColormap.mtt")
+        !include("__TerrainDetail1.mtt")
+        !include("__TerrainDetail2.mtt")
+        !include("__TerrainColormapSmall.mtt")
+        !include("__Clouds.mtt")
+        !include("__WaterDeep.mtt")
+    }
+
+    lightpass()
+
+    !include("SpotShadowmap.mtt")
+    !include("omni_2TMU.mtt")
+    !include("SpotTerrain.mtt")
+
+}
+
+shader()
+{// >=gf3
+    SurfaceID(SRF_GROUND)
+    Shaderquality(4)
+    Cull("ccw")
+    pass()
+    {
+        vertexshader("TerrainHigh11_1.vsh")
+        Pixelshader("Terrain11_1.psh")
+        !include("__WaterDeep.mtt")
+        !include("__TerrainDetail1VS.mtt")
+        !include("__TerrainDetail2VS.mtt")
+        !include("__TerrainColormapSmallVS3.mtt")
+    }
+
+    pass()
+    {
+        vertexshader("TerrainHigh11_2.vsh")
+        Pixelshader("TerrainHigh11_2.psh")
+
+        !include("__TerrainColormapVS3.mtt")
+        !include("__CloudsVS.mtt")
+        !include("__TerrainDetailCrag.mtt")
+        DepthFunc("lequal", 0)
+        BlendFunc("zero", "inv_src_color")
+        BlackFog()
+    }
+
+    lightpass()
+
+    !include("SpotShadowMapVS.mtt")
+    !include("omni_2TMU.mtt")
+    !include("SpotTerrainVS.mtt")
+}
+
+shader()
+{// >=gf3
+    SurfaceID(SRF_GROUND)
+    Shaderquality(3)
+    Cull("ccw")
+    pass()
+    {
+        Pixelshader("Terrain11_1.psh")
+        !include("__WaterDeep.mtt")
+        !include("__TerrainDetail1.mtt")
+        !include("__TerrainDetail2.mtt")
+        !include("__TerrainColormapSmall.mtt")
+
+    }
+
+    pass()
+    {
+        Pixelshader("Terrain11_2.psh")
+
+        !include("__TerrainColormap.mtt")
+        !include("__Clouds.mtt")
+        DepthFunc("lequal", 0)
+        BlendFunc("zero", "inv_src_color")
+        BlackFog()
+    }
+
+    lightpass()
+
+    !include("SpotShadowmap.mtt")
+    !include("omni_2TMU.mtt")
+    !include("SpotTerrain.mtt")
+}
+
+
+shader()
+{// >=gf3
+    SurfaceID(SRF_GROUND)
+    Shaderquality(2)
+    Cull("ccw")
+    pass()
+    {
+        Pixelshader("TerrainLow.psh")
+
+        !include("__TerrainColormap.mtt")
+        !include("__TerrainDetail1.mtt")
+        !include("__TerrainDetail2.mtt")
+        !include("__TerrainColormapSmall.mtt")
+    }
+
+    lightpass()
+
+    !include("SpotShadowmapLow.mtt")
+    !include("omni_2TMU.mtt")
+    !include("SpotTerrain.mtt")
+}
+
+
+shader()
+{// >=gf3
+    SurfaceID(SRF_GROUND)
+    Shaderquality(1)
+    Cull("ccw")
+    pass()
+    {
+        Pixelshader("TerrainVeryLow.psh")
+
+        !include("__TerrainColormap.mtt")
+        !include("__TerrainDetail1.mtt")
+    }
+
+    lightpass()
+
+    !include("SpotShadowmapVeryLow.mtt")
+    !include("omni_2TMU.mtt")
+    !include("SpotTerrain.mtt")
+}
+
+
+shader()
+{//gf2, 4MX
+    SurfaceID(SRF_GROUND)
+    Cull("ccw")
+    Shaderquality(1)
+    pass()
+    {
+        tmu()
+        {
+            TexGen("planar")
+            TexMod("scale", "const", %terrain_inv_x, 0, 0, "const", %terrain_inv_z, 0, 0)
+            texture()
+            {
+                Image(%colortexture)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+            ColorOp("mul_add", "texture_a", "inv_tfactor_a", "tfactor_a")
+        }
+
+        tmu()
+        {
+            TexGen("world_position")
+            TexMtxDirPosScale(1.0, 0.0, 0.0, 0, 0, 0, %waterscale, %waterscale, %waterscale)
+            texture()
+            {
+                Image("WaterDeep_P.dds")
+                filtering("linear_no_mip")
+                addressfunc("wrap", "clamp", "clamp")
+
+            }
+            ColorOp("mul", "current", "tfactor", "current")
+            AlphaOp("arg1", "texture", "tfactor", "current")
+        }
+        tfactor(%daycolor_r, %daycolor_g, %daycolor_b, %ambient_a)
+
+    }
+
+    lightpass()
+
+    !include("SpotShadowmapVeryLow.mtt")
+    !include("spot_spotmap.mtt")
+
+
+    pass()
+    {
+        tmu()
+        {
+            TexGen("planar")
+            TexMod("scale", "const", 0.00001, 0, 0, "const", 0.00001, 0, 0)
+            texture()
+            {
+                Image(%colortexture)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+            ColorOp("arg1", "inv_texture", "current", "current")
+        }
+
+        DepthFunc("lequal", 0)
+        BlendFunc("zero", "inv_src_color")
+        BlackFog()
+    }
+
+    pass()
+    {
+        tmu()
+        {
+            TexGen("planar")
+            TexMod("scale", "const", %detailsize, 0, 0, "const", %detailsize, 0, 0)
+            texture()
+            {
+                Image(%detail1texture)
+            }
+            ColorOp("arg1", "inv_texture", "current", "current")
+        }
+        DepthFunc("lequal", 0)
+        BlendFunc("zero", "inv_src_color")
+        BlackFog()
+    }
+
+}
+
+shader()
+{//gf2
+    SurfaceID(SRF_GROUND)
+    Cull("ccw")
+    Shaderquality(0)
+    pass()
+    {
+        tmu()
+        {
+            TexGen("planar")
+            TexMod("scale", "const", %terrain_inv_x, 0, 0, "const", %terrain_inv_z, 0, 0)
+            texture()
+            {
+                Image(%colortexture)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+            ColorOp("mul", "texture", "tfactor", "current")
+            AlphaOp("mul_add", "texture", "inv_tfactor", "tfactor")
+        }
+        tmu()
+        {
+            TexGen("planar")
+            TexMod("scale", "const", %detailsize, 0, 0, "const", %detailsize, 0, 0)
+            texture()
+            {
+                Image(%detail1texture)
+            }
+            ColorOp("mul", "texture", "current", "current")
+            AlphaOp("arg2", "texture", "current", "current")
+        }
+        BlendFunc("src_alpha", "zero")
+        tfactor(%daycolor_r, %daycolor_g, %daycolor_b, %ambient_a)
+    }
+    lightpass()
+    !include("SpotShadowmapVeryLow.mtt")
+    !include("spot_spotmap.mtt")
+}

@@ -1,0 +1,63 @@
+shader()
+{
+    cull("none")
+    sortweight("translucent14")
+
+    stream("color", 0)
+
+    pass()
+    {
+        Vertexshader("RainDrop.vsh")
+        Pixelshader("RainDrop.psh")
+
+        tmu()
+        {
+            texture()
+            {
+                image("OnFrontGlass_RainN.dds")
+            }
+        }
+        tmu()
+        {
+            texture()
+            {
+                Cubemap(%worldcubemapfile)
+            }
+        }
+
+        // bend, glint, rim dark, opacity
+        Tfactor(-0.8, 1.0, 1.0, 0.85)
+        blendfunc("src_alpha", "inv_src_alpha")
+        depthfunc("lequal", 0)
+    }
+}
+
+shader()
+{
+    cull("none")
+    sortweight("translucent14")
+
+    stream("color", 0)
+
+    pass()
+    {
+        tmu()
+        {
+            colorop("add", "tfactor", "tfactor_a", "current")
+            alphaop("arg1", "diffuse", "current", "current")
+        }
+        tmu()
+        {
+            texture()
+            {
+                image("OnFrontGlass_Rain.dds")
+            }
+
+            colorop("mul", "texture", "current", "current")
+            alphaop("mul", "texture", "current", "current")
+        }
+        Tfactor(%daycolor_r, %daycolor_g, %daycolor_b, 0.1)
+        blendfunc("src_alpha", "inv_src_alpha")
+        depthfunc("lequal", 0)
+    }
+}

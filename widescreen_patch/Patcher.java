@@ -7,6 +7,9 @@ import org.objectweb.asm.tree.*;
 
 public class Patcher {
     static final String H = "UIAspect";
+    static final String RAIN = "RainFX";
+    static final String LOOK = "CockpitLook";
+    static final Set<String> optHelpers = new HashSet<>();
     static final Set<String> SCALE_CLASSES = new HashSet<>(Arrays.asList(
         "UIButtonWithBackground", "UIStatic", "UITexture", "UICursor",
         "UIOptionsControlEdit", "UIOptionsControlEditSelKey", "UIOptionsControlSlider",
@@ -15,6 +18,15 @@ public class Patcher {
     public static void main(String[] a) throws Exception {
         File inPak = new File(a[0]), outPak = new File(a[1]), helper = new File(a[2]);
         File inInf = new File(a[3]), outInf = new File(a[4]);
+        List<File> extra = new ArrayList<>();
+        for (int i = 5; i < a.length; i++) {
+            File f = new File(a[i]);
+            if (f.exists()) {
+                extra.add(f);
+                optHelpers.add(f.getName().replace(".class", ""));
+            }
+        }
+        System.out.println("optional helpers: " + optHelpers);
         ZipFile zf = new ZipFile(inPak);
         ZipOutputStream zo = new ZipOutputStream(new FileOutputStream(outPak), Charset.forName("Cp437"));
         int patched = 0;
@@ -38,6 +50,11 @@ public class Patcher {
         zo.putNextEntry(he);
         zo.write(read(new FileInputStream(helper)));
         zo.closeEntry();
+        for (File f : extra) {
+            zo.putNextEntry(new ZipEntry(f.getName()));
+            zo.write(read(new FileInputStream(f)));
+            zo.closeEntry();
+        }
         zo.close();
 
         byte[] inf = read(new FileInputStream(inInf));
@@ -45,8 +62,13 @@ public class Patcher {
         String key = "UIWindowMovieLoop.class\r\n";
         int i = s.indexOf(key);
         if (i < 0) throw new RuntimeException("inf key missing");
-        if (s.indexOf(H + ".class\r\n") < 0)
-            s = s.substring(0, i + key.length()) + H + ".class\r\n" + s.substring(i + key.length());
+        List<String> names = new ArrayList<>();
+        names.add(H);
+        names.addAll(optHelpers);
+        for (String n : names) {
+            if (s.indexOf(n + ".class\r\n") < 0)
+                s = s.substring(0, i + key.length()) + n + ".class\r\n" + s.substring(i + key.length());
+        }
         FileOutputStream fo = new FileOutputStream(outInf);
         fo.write(s.getBytes("ISO-8859-1"));
         fo.close();
@@ -66,7 +88,10 @@ public class Patcher {
         boolean ui = cls.equals("UIWindow"), dummy = cls.equals("UIDummy"),
                 btn = cls.equals("UIButtonWithBackground"), scale = SCALE_CLASSES.contains(cls),
                 video = cls.equals("MenuOptionsVideo"), fonts = cls.equals("XpandRallyFonts");
-        if (!ui && !dummy && !btn && !scale && !video && !fonts) return null;
+        boolean fov = hasAscii(data, "SetFOV") && !cls.equals("Camera");
+        if (!ui && !dummy && !btn && !scale && !video && !fonts && !fov && !cls.equals("TrackModule")
+                && !(optHelpers.contains(RAIN) && (cls.equals("CarFX") || cls.equals("Weather")))
+                && !(optHelpers.contains(LOOK) && cls.equals("CarCamera$InsideState"))) return null;
         ClassNode cn = new ClassNode();
         new ClassReader(data).accept(cn, 0);
         int changes = 0;
@@ -95,6 +120,42 @@ public class Patcher {
             }
             if (scale) changes += redirectWidth(m, true);
             if (fonts) changes += redirectWidth(m, false);
+            if (fov) changes += redirectFov(m);
+            if (cls.equals("TrackModule") && sig.equals("UpdateViewRanges()V")) {
+                int v = redirectView(m);
+                if (v != 3) throw new RuntimeException("UpdateViewRanges: expected 3 setters, found " + v);
+                changes += v;
+            }
+            if (optHelpers.contains(RAIN) && cls.equals("CarFX") && sig.equals("UpdateOnFrontGlassFXParams()V")) {
+                int v = redirectGlassVel(m);
+                if (v != 1) throw new RuntimeException("UpdateOnFrontGlassFXParams: expected 1 velocity call, found " + v);
+                changes += v;
+            }
+            if (optHelpers.contains(LOOK) && cls.equals("CarCamera$InsideState") && sig.equals("OnPostUpdate()V")) {
+                int v = 0;
+                for (AbstractInsnNode n : m.instructions.toArray()) {
+                    if (n.getOpcode() != Opcodes.GETFIELD) continue;
+                    FieldInsnNode f = (FieldInsnNode) n;
+                    if (!f.owner.equals("CarCamera") || !f.name.equals("m_fAngleVCabinV")) continue;
+                    InsnList il = new InsnList();
+                    il.add(new VarInsnNode(Opcodes.ALOAD, 0));
+                    il.add(new VarInsnNode(Opcodes.ALOAD, 0));
+                    il.add(new FieldInsnNode(Opcodes.GETFIELD, cls, "this$0", "LCarCamera;"));
+                    il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, LOOK, "CabinLookYaw",
+                        "(FLCarCamera$InsideState;LCarCamera;)F", false));
+                    m.instructions.insert(n, il);
+                    v++;
+                }
+                if (v != 1) throw new RuntimeException("InsideState.OnPostUpdate: expected 1 yaw read, found " + v);
+                changes += v;
+            }
+            if (optHelpers.contains(RAIN) && cls.equals("Weather") && sig.equals("OnFrame()V")) {
+                InsnList il = new InsnList();
+                il.add(new VarInsnNode(Opcodes.ALOAD, 0));
+                il.add(new MethodInsnNode(Opcodes.INVOKESTATIC, RAIN, "WeatherFrame", "(LWeather;)V", false));
+                m.instructions.insert(il);
+                changes++;
+            }
             if (video && sig.equals("IsModeAvailable(Ljava/lang/String;)Z")) {
                 delegate(m, "IsModeAvailable");
                 changes++;
@@ -196,6 +257,60 @@ public class Patcher {
             m.instructions.remove(g);
         }
         return hits.size();
+    }
+
+    static final Set<String> CAMERA_CLASSES = new HashSet<>(Arrays.asList(
+        "Camera", "RallyGameCamera", "CarCamera", "MenuCamera", "FreeCamera"));
+
+    static boolean hasAscii(byte[] data, String s) {
+        byte[] p = s.getBytes();
+        outer:
+        for (int i = 0; i + p.length <= data.length; i++) {
+            for (int j = 0; j < p.length; j++)
+                if (data[i + j] != p[j]) continue outer;
+            return true;
+        }
+        return false;
+    }
+
+    static int redirectFov(MethodNode m) {
+        int c = 0;
+        for (AbstractInsnNode n : m.instructions.toArray()) {
+            if (n.getOpcode() != Opcodes.INVOKEVIRTUAL) continue;
+            MethodInsnNode mi = (MethodInsnNode) n;
+            if (!mi.name.equals("SetFOV") || !mi.desc.equals("(F)V") || !CAMERA_CLASSES.contains(mi.owner)) continue;
+            m.instructions.set(mi, new MethodInsnNode(Opcodes.INVOKESTATIC, H, "SetFOV", "(LCamera;F)V", false));
+            c++;
+        }
+        return c;
+    }
+
+    static int redirectView(MethodNode m) {
+        int c = 0;
+        for (AbstractInsnNode n : m.instructions.toArray()) {
+            if (n.getOpcode() != Opcodes.INVOKEVIRTUAL) continue;
+            MethodInsnNode mi = (MethodInsnNode) n;
+            String d;
+            if (mi.name.equals("SetObjectsVisibilityRange") && mi.desc.equals("(FF)V")) d = "(LGameObject;FF)V";
+            else if (mi.name.equals("SetTreesVisibilityRange") && mi.desc.equals("(FF)V")) d = "(LModule;FF)V";
+            else if (mi.name.equals("SetGrassVisMul") && mi.desc.equals("(F)V")) d = "(LModule;F)V";
+            else continue;
+            m.instructions.set(mi, new MethodInsnNode(Opcodes.INVOKESTATIC, H, mi.name, d, false));
+            c++;
+        }
+        return c;
+    }
+
+    static int redirectGlassVel(MethodNode m) {
+        int c = 0;
+        for (AbstractInsnNode n : m.instructions.toArray()) {
+            if (n.getOpcode() != Opcodes.INVOKEVIRTUAL) continue;
+            MethodInsnNode mi = (MethodInsnNode) n;
+            if (!mi.name.equals("FXGlassMarksVelocity") || !mi.desc.equals("(IF)Z")) continue;
+            m.instructions.set(mi, new MethodInsnNode(Opcodes.INVOKESTATIC, RAIN, "GlassMarksVelocity", "(LCarFX;IF)Z", false));
+            c++;
+        }
+        return c;
     }
 
     static boolean is800(AbstractInsnNode n) {

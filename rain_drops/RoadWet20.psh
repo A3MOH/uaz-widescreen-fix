@@ -1,0 +1,80 @@
+regc4f( 3, %skycolor_r, %skycolor_g, %skycolor_b, %sunvisibility )
+regc4f( 4, %fogcolor_r, %fogcolor_g, %fogcolor_b, 0.0 )
+regc4f( 5, %daycolor_r, %daycolor_g, %daycolor_b, %sunvisibility )
+regc4f( 6, %wetness, %puddles, 0.0, 0.0 )
+regc4f( 7, %ambient_r, %ambient_g, %ambient_b, %ambient_a )
+
+hlsl("
+
+sampler2D	sColor: register(s0);
+sampler2D	sDetail1: register(s1);
+sampler2D	sDetail2: register(s2);
+sampler2D	sMask: register(s3);
+sampler2D	sClouds: register(s4);
+sampler2D	sRoad: register(s5);
+sampler2D	sPuddle: register(s6);
+
+const float4 Sky_Sun : register(c3);
+const float4 Fog : register(c4);
+const float4 DayColor : register(c5);
+const float4 Wet : register(c6);
+const float4 Ambient : register(c7);
+
+#define PUDDLE_TILE_A	90.0
+#define PUDDLE_TILE_B	37.0
+#define PUDDLE_EDGE		10.0
+#define WET_DARK		0.4
+#define PUDDLE_DARK		0.45
+#define RUT_WATER		0.15
+#define SPEC_POW		64
+
+struct PS_INPUT
+{
+	half4	SunFlat : COLOR0;
+	half4	RoadSpec : COLOR1;
+	float2	uvColor : TEXCOORD0;
+	float2	uvDetail : TEXCOORD1;
+	float2	uvClouds : TEXCOORD2;
+	float2	uvRoad : TEXCOORD3;
+	float4	ReflWater : TEXCOORD4;
+	float4	ReflGround : TEXCOORD5;
+};
+
+float4 main( PS_INPUT i ): COLOR {
+
+	half4 Color = tex2D( sColor, i.uvColor );
+	half4 Det1 = tex2D( sDetail1, i.uvDetail );
+	half4 Det2 = tex2D( sDetail2, i.uvDetail );
+	half4 Mask = tex2D( sMask, i.uvColor );
+	half Clouds = 1 - tex2D( sClouds, i.uvClouds ).a;
+	half4 Road = tex2D( sRoad, i.uvRoad );
+	half4 P1 = tex2D( sPuddle, i.uvColor*PUDDLE_TILE_A );
+	half4 P2 = tex2D( sPuddle, i.uvColor*PUDDLE_TILE_B + 0.37 );
+
+	half3 Terrain = Color.rgb*lerp( Det1.rgb, Det2.rgb, Mask.b );
+	half RoadMask = saturate( Road.a*4 );
+	half3 Base = lerp( Terrain, Road.rgb, RoadMask );
+
+	half Shadow = Color.a*Clouds;
+	half SpecMask = saturate( (Road.a*2 - 1)*Sky_Sun.a )*Shadow;
+	half Light = saturate( Shadow*Ambient.b + Ambient.a );
+	Base = saturate( Base + i.RoadSpec.r*SpecMask )*Light;
+
+	half Wetness = Wet.x;
+	half Field = P1.a*0.55 + P2.g*0.3 + Mask.b*0.25 + RoadMask*RUT_WATER;
+	half Puddle = saturate( (Field - 1 + Wetness*Wet.y*0.6)*PUDDLE_EDGE )*i.SunFlat.a;
+
+	Base *= (1 - Wetness*WET_DARK)*(1 - Puddle*PUDDLE_DARK);
+
+	float4 R = lerp( i.ReflGround, i.ReflWater, Puddle );
+	half3 Sky = lerp( Fog.rgb, Sky_Sun.rgb, saturate(R.y*2) );
+	half Refl = lerp( Wetness*0.3*R.w, lerp( 0.35, 1.0, R.w ), Puddle );
+	Base = lerp( Base, Sky, Refl );
+
+	half3 L = i.SunFlat.rgb*2 - 1;
+	half Spec = pow( saturate(dot(normalize(R.xyz), L)), SPEC_POW )*(Puddle + Wetness*0.15);
+	Base += Spec*Sky_Sun.a*Shadow*2;
+
+	return float4( Base*DayColor.rgb, Light*(1 - Clouds) );
+}
+")
