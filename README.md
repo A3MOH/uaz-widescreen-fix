@@ -29,11 +29,7 @@ On 4:3 and narrower screens the UI behaves exactly as before.
 The originals are kept as `code.pak.bak` and `code_inf.pak.bak`.
 
 ## Prerequisites
-
-To play:
-
-- The game installed. These steps assume `F:\Games\UAZ`.
-- Optional but recommended: [DXVK](https://github.com/doitsujin/dxvk) 32-bit `d3d9.dll` next to
+- **Optional but recommended**: [DXVK](https://github.com/doitsujin/dxvk) 32-bit `d3d9.dll` next to
   `4x4game.exe`. It fixes crashes in fullscreen mode (`D3DERR_DEVICELOST`).
 
 To rebuild with `build.ps1`:
@@ -53,20 +49,20 @@ If your JDK 8 or ASM is somewhere else, change the `$jdk` and `$asm` paths at th
 
 1. On first install, back up the originals:
    ```powershell
-   Copy-Item F:\Games\UAZ\code.pak     F:\Games\UAZ\code.pak.bak
-   Copy-Item F:\Games\UAZ\code_inf.pak F:\Games\UAZ\code_inf.pak.bak
+   Copy-Item <GAME INSTALL DIR>\code.pak     <GAME INSTALL DIR>\code.pak.bak
+   Copy-Item <GAME INSTALL DIR>\code_inf.pak <GAME INSTALL DIR>\code_inf.pak.bak
    ```
 2. Run:
    ```powershell
-   F:\Games\UAZ\widescreen_patch\build.ps1
+   <GAME INSTALL DIR>\widescreen_patch\build.ps1
    ```
    The build should end with `patched classes: 13`.
 
 ## Uninstall
 
 ```powershell
-Copy-Item F:\Games\UAZ\code.pak.bak     F:\Games\UAZ\code.pak     -Force
-Copy-Item F:\Games\UAZ\code_inf.pak.bak F:\Games\UAZ\code_inf.pak -Force
+Copy-Item <GAME INSTALL DIR>\code.pak.bak     <GAME INSTALL DIR>\code.pak     -Force
+Copy-Item <GAME INSTALL DIR>\code_inf.pak.bak <GAME INSTALL DIR>\code_inf.pak -Force
 ```
 
 ## Tuning
