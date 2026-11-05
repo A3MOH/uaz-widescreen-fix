@@ -100,6 +100,41 @@ Copy-Item <GAME INSTALL DIR>\code_inf.pak.bak <GAME INSTALL DIR>\code_inf.pak -F
 | `no_wetness.txt` |	Мокрый террейн и лужи (**WIP, ТОЛЬКО НА ПЕРВУЮ ЧАСТЬ**)| `wetness.txt`: ([0.0,2.0], [-1,1]): первая задает размер "луж", вторая - интенсивность эффекта(-1 - следует игровой логике, т.е работает только на картах с дождем) |
 
 Для капель и мокрого террейна необходимо скачать шейдеры из `rain_drops`, закинуть так же в папку с игрой, запустить `install.ps1`. Скрипт перезапишет нужные игровые шейдеры и добавит свои
+параметры капель задаются в `Data\FX\FXDEF\glass\OnFrontGlass_Rain.fx` игры:
+```HLSL
+GlassMarksDef()
+{
+  MarkLifeTime()
+  {
+    keyf(0, 5) // TTL капли
+  }
+
+  MarkSize() // увеличение капель с течением времени
+  {
+    randf(0, 0.1, 0.6)
+    randf(4, 0.9, 1.3)
+    randf(5, 2.4, 4.5)
+  }
+
+  MarkColor()
+  {
+    keyv4(0, 1, 1, 1, 1)
+    keyv4(1, 1, 1, 1, 1)
+    keyv4(3, 1, 1, 1, 0.4)
+    keyv4(4, 1, 1, 1, 0.1)
+    keyv4(5, 1, 1, 1, 0)
+  }
+
+  MarkMaterial("OnFrontGlass_Rain.mat")
+  MarksRate(150) // количество капель 
+	MarksMaxSpeed(5) // скорость соскальзывания
+	MarkMoveProbability(0.3) // кол-во капель, которые соскользнут(от общего)
+	SweepMaterial("OnFrontGlass_RainSweep.mat")
+	MarkTexcoords(2,2,4)
+}
+```
+
+
 
 ## Известные ограничения
 

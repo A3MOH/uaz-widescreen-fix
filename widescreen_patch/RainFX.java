@@ -8,6 +8,8 @@ public class RainFX
 	static final float DROP_JOLT_DECAY = 0.25f;
 	static final float DROP_JOLT_MIN = 6.0f;
 	static final float DROP_EXTRA_MAX = 30.0f;
+	static final float CM_TO_M = 0.01f;
+	static final float M_TO_CM = 100.0f;
 	static float[] s_aDropCfg = ReadDropCfg();
 	static java.util.WeakHashMap s_mDropState = new java.util.WeakHashMap();
 
@@ -169,8 +171,8 @@ public class RainFX
 		}
 		else if (dt > 0.0f)
 		{
-			float fAF = (fVF - s[1]) / dt;
-			float fAU = Math.abs(fVU - s[2]) / dt - DROP_JOLT_MIN;
+			float fAF = (fVF - s[1]) / dt * CM_TO_M;
+			float fAU = Math.abs(fVU - s[2]) / dt * CM_TO_M - DROP_JOLT_MIN;
 			s[3] += (fAF - s[3]) * Math.min(1.0f, dt / DROP_ACCEL_SMOOTH);
 			s[4] *= (float)Math.exp(-dt / DROP_JOLT_DECAY);
 			if (fAU > s[4])
@@ -185,6 +187,6 @@ public class RainFX
 			fExtra = DROP_EXTRA_MAX;
 		if (fExtra < -DROP_EXTRA_MAX)
 			fExtra = -DROP_EXTRA_MAX;
-		return c.FXGlassMarksVelocity(nFX, fVel + fExtra * c.m_fOnFrontGlassFXVelCoeff);
+		return c.FXGlassMarksVelocity(nFX, fVel + fExtra * M_TO_CM * c.m_fOnFrontGlassFXVelCoeff);
 	}
 }
