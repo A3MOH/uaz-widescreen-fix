@@ -1,0 +1,59 @@
+
+
+Skin("3UH1")
+{
+}
+
+Skin("3UH1_GHOST")
+{Replace("3UH_mirror.mat", 			"Null.mat")
+    Replace("3UH1_Body.mat", 			"Null.mat")
+    Replace("3UH1_BodyReflection.mat", 	"3UH1_Body_GHOST.mat")
+    Replace("3UH1_BodyOpacity.mat", 	"Null.mat")
+    Replace("3UH_Light.mat", 			"3UH_Light_GHOST.mat")
+    Replace("3UH_GlassReflection.mat", 	"3UH_Glass_GHOST.mat")    	
+
+    Replace("3UH1_Body_1.mat", 			    "Null.mat")
+    Replace("3UH1_BodyReflection_1.mat", 	"3UH1_Body_GHOST.mat")
+    Replace("3UH1_BodyOpacity_1.mat", 	    "Null.mat")
+    Replace("3UH_Light_1.mat", 			    "3UH_Light_GHOST.mat")
+    Replace("3UH_GlassReflection_1.mat", 	"3UH_Glass_GHOST.mat")    	
+
+    Replace("3UH1_Body_2.mat", 			    "Null.mat")
+    Replace("3UH1_BodyReflection_2.mat", 	"3UH1_Body_GHOST.mat")
+    Replace("3UH1_BodyOpacity_2.mat", 	    "Null.mat")
+    Replace("3UH_Light_2.mat", 			    "3UH_Light_GHOST.mat")
+    Replace("3UH_GlassReflection_2.mat", 	"3UH_Glass_GHOST.mat")    	
+
+}
+	
+Skin("3UH1_MENU")
+{Replace("3UH_mirror.mat", 			"3UH_mirror_MENU.mat")
+    Replace("3UH_GlassReflection.mat", 	"3UH_GlassReflection_MENU.mat")
+    Replace("3UH1_Body.mat", 			"3UH1_Body_MENU.mat")
+    Replace("3UH1_BodyReflection.mat", 	"3UH1_BodyReflection_MENU.mat")
+    Replace("3UH1_BodyOpacity.mat", 	"3UH1_BodyOpacity_MENU.mat")
+    Replace("3UH_Light.mat", 			"3UH_Light_MENU.mat")
+
+    Replace("3UH_GlassReflection_1.mat", 	"3UH_GlassReflection_MENU.mat")
+    Replace("3UH1_Body_1.mat", 			"3UH1_Body_MENU.mat")
+    Replace("3UH1_BodyReflection_1.mat", 	"3UH1_BodyReflection_MENU.mat")
+    Replace("3UH1_BodyOpacity_1.mat", 	"3UH1_BodyOpacity_MENU.mat")
+    Replace("3UH_Light_1.mat", 			"3UH_Light_MENU.mat")
+
+    Replace("3UH_GlassReflection_2.mat", 	"3UH_GlassReflection_MENU.mat")
+    Replace("3UH1_Body_2.mat", 			"3UH1_Body_MENU.mat")
+    Replace("3UH1_BodyReflection_2.mat", 	"3UH1_BodyReflection_MENU.mat")
+    Replace("3UH1_BodyOpacity_2.mat", 	"3UH1_BodyOpacity_MENU.mat")
+    Replace("3UH_Light_2.mat", 			"3UH_Light_MENU.mat")
+
+}
+
+
+
+
+
+
+
+   
+
+   
