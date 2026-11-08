@@ -49,7 +49,6 @@
    ```powershell
    <GAME INSTALL DIR>\widescreen_patch\build.ps1
    ```
-   Сборка должна закончиться строкой `patched classes: 13`.
 
 ## Удаление
 
