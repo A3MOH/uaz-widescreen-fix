@@ -1,0 +1,4 @@
+$SORTW(s,"opaque")
+$BLENDOPTIONSFILE(s,"__BBRefl.mtt")
+
+!include("..\\Shaders\\_Billboard.mtt")

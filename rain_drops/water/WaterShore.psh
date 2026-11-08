@@ -1,0 +1,97 @@
+regc4f( 0, %shorerange, %shorebias, %shorelevel, 0.0 )
+regc4f( 1, %watercam_x, %watercam_y, %watercam_z, 0.0 )
+regc4f( 2, %fogcolor_r, %fogcolor_g, %fogcolor_b, %fogcolor_a )
+regc4f( 6, %raintime, %rainnow, 0.0, 0.0 )
+regc4f( 7, %ambient_r, %ambient_g, %ambient_b, %ambient_a )
+
+hlsl("
+
+sampler2D	sRefl: register(s0);
+sampler2D	sNoise1: register(s1);
+sampler2D	sNoise2: register(s2);
+sampler2D	sLightmap: register(s3);
+sampler2D	sRipples: register(s4);
+sampler2D	sPuddle: register(s5);
+
+const float4 Shore : register(c0);
+const float4 Camera : register(c1);
+const float4 Fog : register(c2);
+const float4 Rain : register(c6);
+const float4 Ambient : register(c7);
+
+#define ALPHA_DOWN		0.2		// looking straight down
+#define ALPHA_FLAT		0.9		// looking along the water
+#define FRESNEL_POW		5.0
+#define RIPPLE			20.0	// reflection wobble from the noise (Water20.psh uses 20)
+#define TERRAIN_SIZE	100000.0	// map width in cm (puddle map covers it)
+#define REFL_FOG		1.0		// how much the reflection fades into fog (0 = off)
+#define REFL_FOG_DIST	40000.0	// cm: distance where reflection is fully fogged in clear weather
+#define RIPPLE_TILE_A	250.0	// set in WaterSimple.mat (TexMod 0.0025 = every 4 m), kept here for reference
+#define RIPPLE_TILE_B	180.0	// second layer, every 5.5 m
+#define RIPPLE_BEND		0.06	// how much rings bend the reflection
+#define RIPPLE_BRIGHT	0.6		// ring highlight
+#define RIPPLE_ALPHA	0.6		// rings also make the water less see-through
+#define RIPPLE_LAG		0.5		// second layer half a cycle later
+#define SHORE_FADE		35.0
+#define DEBUG			0
+// 1 = R ring start time (texture alpha), G ring phase (should move), B rings of layer 1
+
+// one layer of rain rings: R mask, GB ring direction, A time offset
+float3 Ripple( float4 r, float t, float amount )
+{
+	float Drop = frac( r.a + t );
+	float Wave = saturate( (Drop - 1 + r.r)*3 );
+	float Ring = saturate( amount - Drop )*r.r*Wave*(1 - Wave)*4;
+	return float3( (r.gb*2 - 1)*Ring, Ring );
+}
+
+struct PS_INPUT
+{
+	float4	uvRefl : TEXCOORD0;
+	float2	uvNoise1 : TEXCOORD1;
+	float2	uvNoise2 : TEXCOORD2;
+	float2	uvMap : TEXCOORD3;
+	float2	uvRipple : TEXCOORD4;
+};
+
+float4 main( PS_INPUT i ): COLOR {
+
+	// animated ripples bend the reflection
+	float4 N1 = tex2D( sNoise1, i.uvNoise1 );
+	float4 N2 = tex2D( sNoise2, i.uvNoise2 );
+	float3 Rip = Ripple( tex2D( sRipples, i.uvRipple ), Rain.x, Rain.y )
+	           + Ripple( tex2D( sRipples, i.uvMap.yx*RIPPLE_TILE_B + float2(0.37, 0.61) ), Rain.x + RIPPLE_LAG, Rain.y );
+	float4 uvR = i.uvRefl + N1*N2*RIPPLE;
+	uvR.xy += Rip.xy*RIPPLE_BEND*uvR.w;
+	float3 Refl = tex2Dproj( sRefl, uvR ).rgb;
+
+	// terrain shadows
+	float Lightmap = tex2D( sLightmap, i.uvMap ).a;
+	Refl *= saturate( Lightmap*Ambient.b + Ambient.a );
+
+	// shore fade: depth below water = W - H, H = W - R + 2R*B
+	float B = tex2D( sPuddle, i.uvMap ).b;
+	float Depth = Shore.x - 2*Shore.x*B - Shore.y;
+	float Fade = saturate( Depth/SHORE_FADE );
+
+	// fresnel: water point from the map coords, y = water level
+	float3 World = float3( i.uvMap.x*TERRAIN_SIZE, Shore.z, i.uvMap.y*TERRAIN_SIZE );
+	float3 ToCam = Camera.xyz - World;
+	float InvDist = rsqrt( dot(ToCam, ToCam) );
+	float Ey = saturate( ToCam.y*InvDist );
+
+	// fog: reflected things are at least as far as the water point, so fade them into fog color
+	float FogAmount = saturate( 1/(InvDist*REFL_FOG_DIST*Fog.a) )*REFL_FOG;
+	Refl = lerp( Refl, Fog.rgb, FogAmount );
+	float Fresnel = pow( 1 - Ey, FRESNEL_POW );
+	float Alpha = lerp( ALPHA_DOWN, ALPHA_FLAT, Fresnel );
+
+#if DEBUG
+	float4 RT = tex2D( sRipples, i.uvRipple );
+	return float4( RT.a, frac( RT.a + Rain.x ), Ripple( RT, Rain.x, Rain.y ).z*4, 1 );
+#endif
+	// rain rings: light highlight
+	Refl = saturate( Refl + Rip.z*RIPPLE_BRIGHT );
+	return float4( Refl, saturate( Alpha + Rip.z*RIPPLE_ALPHA )*Fade );
+}
+")

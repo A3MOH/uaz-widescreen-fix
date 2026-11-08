@@ -1,0 +1,118 @@
+shader()
+{
+    ShaderQuality(4)
+    cull("cw")
+    sortweight("preblended")
+    pass()
+    {
+        Vertexshader("WaterShore.vsh")
+        Pixelshader("WaterShore.psh")
+
+        tmu()
+        {
+            texture()
+            {
+                usermap(0)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+            texgen("projected")
+        }
+        tmu()
+        {
+            texture()
+            {
+                Image(%puddletexture)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+        }
+
+        blendfunc("src_alpha", "inv_src_alpha")
+        depthfunc("lequal", 0)
+    }
+}
+/*
+{
+    ShaderQuality(3)
+    cull("cw")
+    sortweight("preblended")
+    pass()
+    {
+        Pixelshader("Water20.psh")
+        tmu()
+        {
+            texture()
+            {
+                usermap(0)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+
+            texgen("projected")
+        }
+
+        tmu()
+        {
+            texgen("planar")
+            TexMod("scale", "const", 0.0002, 0, 0, "const", 0.0001, 0, 0)
+            TexMod("translate", "lin", 0, 0.0001, 0, "lin", 0, 0.01, 0)
+            texture()
+            {
+                Image("Noise.dds")
+            }
+        }
+        tmu()
+        {
+            texgen("planar")
+            TexMod("scale", "const", 0.00026, 0, 0, "const", 0.00013, 0, 0)
+            TexMod("translate", "lin", 0, 0.011, 0, "none", 0, 0, 0)
+            texture()
+            {
+                Image("Noise.dds")
+            }
+        }
+
+        !include("..\\Shaders\\__TerrainColormapSmall.mtt")
+
+        tmu()
+        {
+            TexGen("reflection")
+            Texture()
+            {
+                Cubemap(%watercubemapfile)
+            }
+        }
+
+        !include("..\\Shaders\\__Clouds.mtt")
+
+        blendfunc("src_alpha", "inv_src_alpha")
+        depthfunc("lequal", 0)
+    }
+
+}
+*/
+shader()
+{
+    cull("cw")
+    sortweight("preblended")
+    pass()
+    {
+        tmu()
+        {
+            texture()
+            {
+                usermap(0)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+
+            texgen("projected")
+            ColorOp("arg1", "texture", "current", "current")
+            AlphaOp("arg1", "tfactor", "current", "current")
+        }
+        Tfactor(1, 1, 1, 0.4)
+
+        blendfunc("src_alpha", "inv_src_alpha")
+        depthfunc("lequal", 0)
+    }
+}
+
+
+

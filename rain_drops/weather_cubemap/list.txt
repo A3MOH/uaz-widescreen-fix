@@ -1,0 +1,11 @@
+Taiga|Taiga.clm
+grandcanyon|grandcanyon.clm
+karelia|Karelia.clm
+level1|level1.clm
+level2|Level2.clm
+level3|level3.clm
+ural|Ural.clm
+uraltrial2|UralTrial2.clm
+uraltrial3|UralTrial3.clm
+uraltrial4|UralTrial4.clm
+uraltrial5|uraltrial5.clm

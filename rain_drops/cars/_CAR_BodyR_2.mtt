@@ -1,0 +1,198 @@
+// $TEXTURE1
+// $TEX1OPTIONSFILE
+// $DIRT
+// $DIRTOPTIONSFILE
+// $NORMALS
+// $NORMALSOPTIONSFILE
+// $SPECPOW
+
+Shader()
+{
+    ShaderQuality(4)
+    Pass()
+    {
+        VertexShader("CarBR_CmCdDm_ps20.vsh")
+        Pixelshader("CarBR_CmCdDm_ps20.psh")
+
+        !include("__Tex1.mtt")
+        !include("__Dirt.mtt")
+        !include("__CloudsVS.mtt")
+        //!include("__TerrainColormapVS.mtt")
+        !include("__TerrainColormapSmallVS.mtt")        
+        // !include("__DynamicCubeMap.mtt")
+        !include("__CubeMap.mtt")        
+        !include("__DirtNormalsMap.mtt")
+        tmu()
+        {
+            Texture()
+            {
+                Image("CarRainBeads.dds")
+            }
+        }
+
+        colorgen("tfactor", "none", 0,0,0, "user", 0,0,0) // A - dirt level
+    }
+    Cull("cw")
+}
+
+shader()
+{
+    ShaderQuality(3)
+    pass()
+    {
+        //Lighting()
+        Pixelshader("CarBR_CmCd_ps14.psh")
+        Vertexshader("CarBR_CmCd_ps14.vsh")
+
+        !include("__tex1.mtt")
+        !include("__Dirt.mtt")
+//        !include("__TerrainColormapVS.mtt")
+        !include("__TerrainColormapSmallVS.mtt")
+        !include("__CloudsVS.mtt")
+//        !include("__DynamicCubeMap.mtt")
+        !include("__CubeMap.mtt")
+
+        colorgen("tfactor", "none", 0,0,0, "user", 0,0,0) // A - dirt level
+    }
+    Cull("cw")
+}
+
+shader()
+{
+    ShaderQuality(2)
+    pass()
+    {
+        //Lighting()
+        Pixelshader("CarBR_Cm_ps11.psh")
+        Vertexshader("CarBR_Cm_ps11.vsh")
+
+        !include("__tex1.mtt")
+        !include("__Dirt.mtt")
+        !include("__TerrainColormapSmallVS.mtt")
+//        !include("__DynamicCubeMap.mtt")        
+        !include("__CubeMap.mtt")        
+
+        colorgen("tfactor", "none", 0,0,0, "user", 0,0,0) // A - dirt level
+    }
+    Cull("cw")
+}
+
+shader()
+{
+    ShaderQuality(1)
+    pass()
+    {
+        //Lighting()
+        Pixelshader("CarBR_ps11.psh")
+        Vertexshader("CarBR_ps11.vsh")
+
+        !include("__tex1.mtt")
+        !include("__Dirt.mtt")
+        !include("__TerrainColormapSmallVS.mtt")
+
+        colorgen("tfactor", "none", 0,0,0, "user", 0,0,0) // A - dirt level
+    }
+    Cull("cw")
+}
+
+
+//=========================== GF2 ======================================
+shader()
+{
+    ShaderQuality(2)
+
+    pass()
+    {
+        Lighting()
+        tmu()
+        {
+            TexGen("planar")
+			TexMod("scale", "const", 0.00001, 0, 0, "const", 0.00001, 0, 0)
+            texture()
+            {
+                Image(%colortexturesmall)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+            ColorOp("mul_add", "texture_a", "current", "diffuse_a")
+            AlphaOp("arg1", "texture_a", "current", "current")
+        }
+		AmbientColor(0.0, 0.0, 0.0, 1.000)
+		DiffuseColor(%daycolor_r, %daycolor_g, %daycolor_b, %daycolor_a)
+		SpecularColor(0.0, 0.0, 0.0, 1.000)
+		EmissiveColor(0.0, 0.0, 0.0, 1.000)
+		SpecularPow(0.0)
+               
+    }
+    lightpass()
+    !include("spot_spotmap.mtt")
+
+    pass()
+    {
+        Lighting()
+        tmu()
+        {
+            Texture()
+            {
+                Mapchannel(0)
+                Image(DIRT_GF2)
+                !include(DIRTOPTIONSFILE)
+            }
+            ColorOp("arg1", "tfactor", "current", "current")
+            AlphaOp("mul", "tfactor_a", "texture_a", "current")       
+        }
+        tmu()
+        {
+            Texture()
+            {
+                Mapchannel(0)
+                Image(TEXTURE1)
+                !include(TEX1OPTIONSFILE)
+            }
+            ColorOp("blend_current_alpha", "current", "texture", "current")
+        }
+
+        tfactor(%dirtcolor_r, %dirtcolor_g, %dirtcolor_b, 1.0)
+        colorgen("tfactor", "none", 0,0,0, "user", 0,0,0)
+   
+		AmbientColor(0.0, 0.0, 0.0, 1.0)
+		DiffuseColor(0.0, 0.0, 0.0, 1.0)
+		SpecularColor(%sunvisibility, %sunvisibility, %sunvisibility, 1.000)
+		EmissiveColor(0.0, 0.0, 0.0, 1.000)
+		SpecularPow(SPECPOW)                
+
+        BlendFunc("zero", "src_color")
+    }
+
+    Cull("cw")
+}
+//=======================================================
+/*
+shader()
+{
+    ShaderQuality(0)
+    pass()
+    {
+        Lighting()
+        Pixelshader("Common_specular.psh")
+        Vertexshader("Common_specular.vsh")
+        !include("__tex1.mtt")
+    }
+    Cull("cw")
+}
+*/
+shader()
+{
+    ShaderQuality(0)
+    pass()
+    {
+        Lighting()
+        !include("__tex1.mtt")
+
+        !include("__LightningColorsSpecGF2.mtt")                
+    }
+//    lightpass()
+//    !include("spot_spotmap.mtt")
+    
+    Cull("cw")
+}
+

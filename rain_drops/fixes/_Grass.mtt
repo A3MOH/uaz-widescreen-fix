@@ -1,0 +1,89 @@
+
+
+shader()
+{// >=gf3
+    sortweight("translucent8")
+    cull("none")
+	Shaderquality(3)
+    stream("color", 0)
+
+    pass()
+    {
+        Pixelshader("Grass.psh")
+        tmu()
+        {
+            texture()
+            {
+                image(TEXTURE1)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+        }
+        !include("__Clouds.mtt")
+
+        BlendFunc("src_alpha","inv_src_alpha")
+        AlphaFunc("greater", 32 )
+        depthfunc("lequal", 0)
+    }
+}
+
+
+shader()
+{// >=gf3
+    sortweight("translucent8")
+    cull("none")
+	Shaderquality(1)
+    stream("color", 0)
+
+    pass()
+    {
+        Pixelshader("GrassVeryLow.psh")
+        tmu()
+        {
+            texture()
+            {
+                image(TEXTURE1)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+        }
+        BlendFunc("src_alpha","inv_src_alpha")
+        AlphaFunc("greater", 32 )
+        depthfunc("lequal", 0)
+    }
+}
+
+shader()
+{//gf2
+    sortweight("translucent8")
+    cull("none")
+    stream("color", 0)
+
+    pass()
+    {
+
+        tmu()
+        {
+            ColorOp("mul_add", "diffuse", "tfactor", "tfactor_a")
+            AlphaOp("arg1", "diffuse", "current", "current")
+        }
+
+        tmu()
+        {
+
+            texture()
+            {
+                Mapchannel(0)
+                image(TEXTURE1)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+            ColorOp("mul", "texture", "current", "current")
+            AlphaOp("mul", "texture", "current", "current")
+        }
+  		Tfactor(%daycolor_r, %daycolor_g, %daycolor_b, %daycolor_a)
+
+        BlendFunc("src_alpha","inv_src_alpha")
+        AlphaFunc("greater", 32 )
+        depthfunc("lequal", 0)
+    }
+}
+
+

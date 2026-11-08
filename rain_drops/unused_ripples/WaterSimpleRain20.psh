@@ -1,0 +1,45 @@
+regc(0, "TFACTOR")
+regc4f( 5, %daycolor_r, %daycolor_g, %daycolor_b, %sunvisibility )
+regc4f( 6, %raintime, %rainnow, 0.0, 0.0 )
+
+hlsl("
+
+sampler2D	sReflection: register(s0);
+sampler2D	sRipples: register(s1);
+
+const float4 TFactor : register(c0);
+const float4 DayColor : register(c5);
+const float4 Rain : register(c6);
+
+#define RIPPLE_BEND		0.06
+#define RIPPLE_BRIGHT	1.5
+#define RIPPLE_ALPHA	0.6
+#define RIPPLE_LAG		0.5
+
+struct PS_INPUT
+{
+	float4	uvRefl : TEXCOORD0;
+	float4	uvRipple : TEXCOORD1;
+};
+
+float3 Ripple( float4 r, float t, float amount )
+{
+	float Drop = frac( r.a + t );
+	float Wave = saturate( (Drop - 1 + r.r)*3 );
+	float Ring = saturate( amount - Drop )*r.r*Wave*(1 - Wave)*4;
+	return float3( (r.gb*2 - 1)*Ring, Ring );
+}
+
+float4 main( PS_INPUT i ): COLOR {
+
+	float3 Rip = Ripple( tex2D( sRipples, i.uvRipple.xy ), Rain.x, Rain.y )
+	           + Ripple( tex2D( sRipples, i.uvRipple.zw ), Rain.x + RIPPLE_LAG, Rain.y );
+
+	float4 uv = i.uvRefl;
+	uv.xy += Rip.xy*RIPPLE_BEND*uv.w;
+	float3 Refl = tex2Dproj( sReflection, uv ).rgb;
+
+	float3 Color = saturate( Refl + Rip.z*RIPPLE_BRIGHT*DayColor.rgb );
+	return float4( Color, saturate(TFactor.a + Rip.z*RIPPLE_ALPHA) );
+}
+")

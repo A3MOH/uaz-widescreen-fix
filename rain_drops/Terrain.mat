@@ -27,7 +27,7 @@ shader()
         {
             texture()
             {
-                Image("PuddleNoise.dds")
+                Image(%puddletexture)
             }
         }
     }

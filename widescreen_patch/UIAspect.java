@@ -2,24 +2,100 @@ public class UIAspect
 {
 	static final float ASPECT = 4.0f / 3.0f;
 	static final float FULL_WIDTH = 0.95f;
-	static final float HUD_LEFT_EDGE = 0.4f;
-	static final float HUD_RIGHT_EDGE = 0.6f;
+	static final float HUD_LEFT_EDGE = 0.45f;
+	static final float HUD_RIGHT_EDGE = 0.55f;
 
 	static final int ANCHOR_LEFT = 0;
 	static final int ANCHOR_CENTER = 1;
 	static final int ANCHOR_RIGHT = 2;
 	static final Integer[] ANCHORS = { new Integer(ANCHOR_LEFT), new Integer(ANCHOR_CENTER), new Integer(ANCHOR_RIGHT) };
 
-	static float s_fW = 800.0f;
-	static float s_fH = 600.0f;
+	static float s_fW = 1024.0f;
+	static float s_fH = 768.0f;
 	static float s_fBoxW = 800.0f;
 	static java.util.WeakHashMap s_mAnchors = new java.util.WeakHashMap();
 
 	static final String SWITCH_DIR = "widescreen_patch/";
-	static boolean s_bAspect = !new java.io.File(SWITCH_DIR + "no_aspect.txt").exists();
-	static boolean s_bResList = !new java.io.File(SWITCH_DIR + "no_reslist.txt").exists();
-	static boolean s_bFov = !new java.io.File(SWITCH_DIR + "no_fov.txt").exists();
-	static boolean s_bView = !new java.io.File(SWITCH_DIR + "no_view.txt").exists();
+	static final String INI_FILE = "mods.ini";
+	static java.util.HashMap s_mIni = null;
+
+	// mods.ini in the game folder: [section] / key = value, ';' or '#' starts a comment
+	static java.util.HashMap Ini()
+	{
+		if (s_mIni != null)
+			return s_mIni;
+		s_mIni = new java.util.HashMap();
+		try
+		{
+			java.io.BufferedReader r = new java.io.BufferedReader(new java.io.FileReader(INI_FILE));
+			String sSection = "";
+			String s;
+			while ((s = r.readLine()) != null)
+			{
+				int c = s.indexOf(';');
+				int h = s.indexOf('#');
+				if (h >= 0 && (c < 0 || h < c))
+					c = h;
+				if (c >= 0)
+					s = s.substring(0, c);
+				s = s.trim();
+				if (s.length() == 0)
+					continue;
+				if (s.startsWith("[") && s.endsWith("]"))
+				{
+					sSection = s.substring(1, s.length() - 1).trim().toLowerCase();
+					continue;
+				}
+				int e = s.indexOf('=');
+				if (e <= 0)
+					continue;
+				s_mIni.put(sSection + "." + s.substring(0, e).trim().toLowerCase(), s.substring(e + 1).trim());
+			}
+			r.close();
+		}
+		catch (Throwable e)
+		{
+		}
+		return s_mIni;
+	}
+
+	public static String IniString(String sSection, String sKey, String sDefault)
+	{
+		Object o = Ini().get(sSection.toLowerCase() + "." + sKey.toLowerCase());
+		return o == null ? sDefault : (String)o;
+	}
+
+	public static boolean IniBool(String sSection, String sKey, boolean bDefault)
+	{
+		String s = IniString(sSection, sKey, null);
+		if (s == null)
+			return bDefault;
+		s = s.toLowerCase();
+		return s.equals("1") || s.equals("true") || s.equals("on") || s.equals("yes");
+	}
+
+	public static float IniFloat(String sSection, String sKey, float fDefault)
+	{
+		try
+		{
+			String s = IniString(sSection, sKey, null);
+			return s == null ? fDefault : Float.parseFloat(s);
+		}
+		catch (Throwable e)
+		{
+			return fDefault;
+		}
+	}
+
+	public static int IniInt(String sSection, String sKey, int nDefault)
+	{
+		return Math.round(IniFloat(sSection, sKey, (float)nDefault));
+	}
+
+	static boolean s_bAspect = IniBool("widescreen", "aspect", true);
+	static boolean s_bResList = IniBool("widescreen", "resolution_list", true);
+	static boolean s_bFov = IniBool("widescreen", "fov", true);
+	static boolean s_bView = IniBool("widescreen", "view_distance", true);
 	static final float FOV_MAX = 170.0f;
 	static int s_nDumps = 0;
 
@@ -48,22 +124,8 @@ public class UIAspect
 
 	static float ReadViewMul()
 	{
-		try
-		{
-			java.io.BufferedReader r = new java.io.BufferedReader(new java.io.FileReader(SWITCH_DIR + "view_distance.txt"));
-			String s = r.readLine();
-			r.close();
-			if (s != null)
-			{
-				float v = Float.parseFloat(s.trim());
-				if (v >= 0.1f && v <= 10.0f)
-					return v;
-			}
-		}
-		catch (Throwable e)
-		{
-		}
-		return 1.0f;
+		float v = IniFloat("widescreen", "view_distance_mul", 1.0f);
+		return v >= 0.1f && v <= 10.0f ? v : 1.0f;
 	}
 
 	public static float ViewRangeMul()
@@ -212,15 +274,18 @@ public class UIAspect
 			return ((Integer)o).intValue();
 		int nHUD = FindHUD(w);
 		int a = ANCHOR_CENTER;
+		boolean bLoaded = false;
 		if (nHUD == 1 && w.m_vLogicPos != null && w.m_vLogicSize != null)
 		{
+			// some HUD windows ask before their position is loaded (pos 0,0): don't remember that
+			bLoaded = w.m_vLogicPos.fX != 0.0f || w.m_vLogicPos.fY != 0.0f;
 			float cx = w.m_vLogicPos.fX + w.m_vLogicSize.fX * 0.5f;
 			if (cx < HUD_LEFT_EDGE)
 				a = ANCHOR_LEFT;
 			else if (cx > HUD_RIGHT_EDGE)
 				a = ANCHOR_RIGHT;
 		}
-		if (nHUD >= 0)
+		if (nHUD == 0 || (nHUD == 1 && bLoaded))
 			s_mAnchors.put(w, ANCHORS[a]);
 		return a;
 	}

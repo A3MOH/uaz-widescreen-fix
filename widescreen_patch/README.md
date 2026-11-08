@@ -81,15 +81,21 @@ Change these constants in `UIAspect.java`, then run `build.ps1` again:
 | `HUD_RIGHT_EDGE` | `0.6` | HUD elements whose center is right of this stick to the right edge |
 | `MIN_MODE_W` / `MIN_MODE_H` | `800` / `600` | Smallest display mode shown in the resolution list |
 
-## Runtime switches
+## Settings: mods.ini
 
-You can turn parts of the patch off without rebuilding. Create an empty file in
-`widescreen_patch\` (or rename the matching `.off` file), then restart the game:
+All switches and settings live in one file, `mods.ini` in the game folder. Change a value and
+restart the game; no rebuild needed. `1` = on, `0` = off, `;` starts a comment.
 
-| File | Effect |
+| Section | Keys |
 |---|---|
-| `no_aspect.txt` | Turns off the 4:3 UI scaling (UI stretches like the original) |
-| `no_reslist.txt` | Brings back the original 6-mode resolution list |
+| `[widescreen]` | `aspect` (4:3 UI scaling), `resolution_list` (all display modes), `fov`, `view_distance`, `view_distance_mul` |
+| `[cockpit]` | `look_turn`, `look_turn_angle`, `look_turn_speed` |
+| `[glass_drops]` | `enabled`, `accel`, `bump` |
+| `[wetness]` | `enabled`, `puddles`, `force`, `log` |
+| `[water]` | `camera`, `trees_lod`, `objects_lod`, `tree_refl_call` |
+| `[build]` | `RainFX`, `CockpitLook`: leave a helper out of the next `build.ps1` run |
+
+`[install]` belongs to `rain_drops\install.ps1`. A missing key keeps its default (on).
 
 ## Known limits
 

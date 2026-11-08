@@ -1,0 +1,11 @@
+Taiga|Taiga.scr|Puddle_Taiga.dds|400|200
+grandcanyon|grandcanyon.scr|Puddle_grandcanyon.dds|100|200
+karelia|Karelia.scr|Puddle_Karelia.dds|500|200
+level1|level1.scr|Puddle_level1.dds|750|200
+level2|Level2.scr|Puddle_Level2.dds|500|200
+level3|level3.scr|Puddle_level3.dds|500|200
+ural|Ural.scr|Puddle_Ural.dds|4500|200
+uraltrial2|UralTrial2.scr|Puddle_UralTrial2.dds|4500|200
+uraltrial3|UralTrial3.scr|Puddle_UralTrial3.dds|4500|200
+uraltrial4|UralTrial4.scr|Puddle_UralTrial4.dds|4500|200
+uraltrial5|uraltrial5.scr|Puddle_uraltrial5.dds|4500|200

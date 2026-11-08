@@ -8,6 +8,7 @@ $javac14 = @("-nowarn", "-source", "1.4", "-target", "1.4", "-bootclasspath", "$
 
 # Optional game-specific helpers. Each one is compiled on its own; if it does not fit this game
 # (missing classes or fields), it is skipped and its hooks are not applied.
+# Turn one off with mods.ini [build] <name> = 0.
 $optional = @("RainFX", "CockpitLook")
 
 Remove-Item -Recurse -Force $tmp -ErrorAction SilentlyContinue
@@ -22,7 +23,19 @@ $extra = @()
 foreach ($name in $optional) {
     $src = Join-Path $here "$name.java"
     if (-not (Test-Path $src)) { continue }
-    if (Test-Path (Join-Path $here "no_build_$name.txt")) { Write-Host "skipped $name (no_build_$name.txt)"; continue }
+    $off = $false
+    $iniPath = Join-Path $game "mods.ini"
+    if (Test-Path $iniPath) {
+        $section = ""
+        foreach ($line in Get-Content $iniPath) {
+            $t = ($line -split "[;#]", 2)[0].Trim()
+            if ($t -match '^\[(.+)\]$') { $section = $Matches[1].Trim().ToLower(); continue }
+            if ($section -eq "build" -and $t -match '^([^=]+)=(.*)$' -and $Matches[1].Trim() -eq $name) {
+                $off = $Matches[2].Trim() -match '^(0|false|off|no)$'
+            }
+        }
+    }
+    if ($off) { Write-Host "skipped $name (mods.ini [build] $name = 0)"; continue }
     $out = Join-Path $tmp "o_$name"
     New-Item -ItemType Directory -Force $out | Out-Null
     & "$jdk\javac.exe" @javac14 -cp "$tmp\src;$tmp\h" -d $out $src 2>&1 | Out-Null

@@ -20,12 +20,13 @@ const float4 DayColor : register(c5);
 const float4 Wet : register(c6);
 const float4 Ambient : register(c7);
 
-#define PUDDLE_TILE_A	90.0
-#define PUDDLE_TILE_B	37.0
+#define PUDDLE_TILE_A	22.5
+#define PUDDLE_TILE_B	9.25
 #define PUDDLE_EDGE		10.0
-#define WET_DARK		0.4
+#define WET_DARK		0.5
 #define PUDDLE_DARK		0.45
 #define RUT_WATER		0.15
+#define DIP_WEIGHT	0.8
 #define SPEC_POW		64
 
 struct PS_INPUT
@@ -50,6 +51,7 @@ float4 main( PS_INPUT i ): COLOR {
 	half4 Road = tex2D( sRoad, i.uvRoad );
 	half4 P1 = tex2D( sPuddle, i.uvColor*PUDDLE_TILE_A );
 	half4 P2 = tex2D( sPuddle, i.uvColor*PUDDLE_TILE_B + 0.37 );
+	half Dip = tex2D( sPuddle, i.uvColor ).r;
 
 	half3 Terrain = Color.rgb*lerp( Det1.rgb, Det2.rgb, Mask.b );
 	half RoadMask = saturate( Road.a*4 );
@@ -61,7 +63,7 @@ float4 main( PS_INPUT i ): COLOR {
 	Base = saturate( Base + i.RoadSpec.r*SpecMask )*Light;
 
 	half Wetness = Wet.x;
-	half Field = P1.a*0.55 + P2.g*0.3 + Mask.b*0.25 + RoadMask*RUT_WATER;
+	half Field = Dip*DIP_WEIGHT + P1.a*0.18 + P2.g*0.12 + Mask.b*0.1 + RoadMask*RUT_WATER;
 	half Puddle = saturate( (Field - 1 + Wetness*Wet.y*0.6)*PUDDLE_EDGE )*i.SunFlat.a;
 
 	Base *= (1 - Wetness*WET_DARK)*(1 - Puddle*PUDDLE_DARK);

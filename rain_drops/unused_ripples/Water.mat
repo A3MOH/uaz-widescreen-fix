@@ -1,0 +1,269 @@
+
+shader()
+{
+    ShaderQuality(4)
+    cull("cw")
+    sortweight("preblended")
+    pass()
+    {
+
+        Vertexshader("WaterRain.vsh")
+        Pixelshader("WaterRain20.psh")
+
+        tmu()
+        {
+            texture()
+            {
+                usermap(0)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+            texgen("projected")
+        }
+        tmu()
+        {
+            TexMtxDirPosScale(0, -1, 0, 0, 0, 0, 0.00026, 0.00026, 0.00026)
+            TexMod("translate", "none", 0, 0, 0, "lin", 0, -0.011, 0)
+            texture()
+            {
+                Image("NoiseA.dds")
+                LODBias(-2)
+            }
+        }
+        tmu()
+        {
+            TexMtxDirPosScale(0, -1, 0, 0, 0, 0, 0.0002, 0.0002, 0.0002)
+            TexMod("translate", "lin", 0, 0.001, 0, "lin", 0, 0.01, 0)
+            texture()
+            {
+                Image("NoiseA.dds")
+                LODBias(-2)
+            }
+        }
+        tmu()
+        {
+            TexMtxDirPosScale(0.866025, 0.5, 0.0, 0, 0, 0, 0.000015, 0.000015, 0.000015)
+            TexMod("translate", "lin", 0, 0.02, 0, "lin", 0, 0.001, 0)
+            texture()
+            {
+                Image(%cloudstexture)
+            }
+        }
+        tmu()
+        {
+            texture()
+            {
+                Image(%colortexturesmall)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+        }
+        tmu()
+        {
+            texture()
+            {
+                Image("SunFace.dds")
+                addressfunc("clamp", "clamp", "clamp")
+            }
+        }
+        tmu()
+        {
+            texture()
+            {
+                Image("RainRipples.dds")
+            }
+        }
+        blendfunc("inv_dest_alpha", "dest_alpha")
+        depthfunc("lequal", 0)
+    }
+}
+
+/* projective w ps1.4 nie dziala na r300 :(
+shader()
+{
+    ShaderQuality(3)
+    cull("cw")
+    sortweight("preblended")
+    pass()
+    {
+
+        Vertexshader("WaterHigh.vsh")
+        Pixelshader("Water14.psh")
+
+        tmu()
+        {
+            texture()
+            {
+                usermap(0)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+            texgen("projected")
+        }
+        tmu()
+        {
+            TexMtxDirPosScale(0, -1, 0, 0, 0, 0, 0.00026, 0.00026, 0.00026)
+            TexMod("translate", "none", 0, 0, 0, "lin", 0, -0.011, 0)
+            texture()
+            {
+                Image("NoiseA.dds")
+                LODBias(-2)
+            }
+        }
+        tmu()
+        {
+            TexMtxDirPosScale(0, -1, 0, 0, 0, 0, 0.0002, 0.0002, 0.0002)
+            TexMod("translate", "lin", 0, 0.001, 0, "lin", 0, 0.01, 0)
+            texture()
+            {
+                Image("NoiseA.dds")
+                LODBias(-2)
+            }
+        }
+        tmu()
+        {
+            TexMtxDirPosScale(0.866025, 0.5, 0.0, 0, 0, 0, 0.000015, 0.000015, 0.000015)
+            TexMod("translate", "lin", 0, 0.02, 0, "lin", 0, 0.001, 0)
+            texture()
+            {
+                Image(%cloudstexture)
+            }
+        }
+        tmu()
+        {
+            texture()
+            {
+                Image(%colortexturesmall)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+        }
+        tmu()
+        {
+            texture()
+            {
+                Image("SunFace.dds")
+                addressfunc("clamp", "clamp", "clamp")
+            }
+        }
+        blendfunc("inv_dest_alpha", "dest_alpha")
+        depthfunc("lequal", 0)
+    }
+}
+*/
+
+/*
+shader()
+{//ps 2.0 gffx
+    ShaderQuality(3)
+    cull("cw")
+    sortweight("preblended")
+    pass()
+    {
+        Pixelshader("Water20.psh")
+        tmu()
+        {
+            texture()
+            {
+                usermap(0)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+
+            texgen("projected")
+        }
+
+        tmu()
+        {
+            texgen("planar")
+            TexMod("scale", "const", 0.0002, 0, 0, "const", 0.0001, 0, 0)
+            TexMod("translate", "lin", 0, 0.0001, 0, "lin", 0, 0.01, 0)
+            texture()
+            {
+                Image("Noise.dds")
+            }
+        }
+        tmu()
+        {
+            texgen("planar")
+            TexMod("scale", "const", 0.00026, 0, 0, "const", 0.00013, 0, 0)
+            TexMod("translate", "lin", 0, 0.011, 0, "none", 0, 0, 0)
+            texture()
+            {
+                Image("Noise.dds")
+            }
+        }
+
+        !include("..\\Shaders\\__TerrainColormapSmall.mtt")
+
+        tmu()
+        {
+            TexGen("reflection")
+            Texture()
+            {
+                Cubemap(%watercubemapfile)
+            }
+        }
+
+        !include("..\\Shaders\\__Clouds.mtt")
+
+        blendfunc("inv_dest_alpha", "dest_alpha")
+        depthfunc("lequal", 0)
+        AlphaFunc("greater", 0)
+    }
+
+}
+*/
+
+
+shader()
+{//ps 1.1 gf3,
+    ShaderQuality(2)
+    cull("cw")
+    sortweight("preblended")
+    pass()
+    {
+        Pixelshader("Water.psh")
+
+        tmu()
+        {
+            texture()
+            {
+                usermap(0)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+
+            texgen("projected")
+        }
+
+        !include("..\\Shaders\\__TerrainColormapSmall.mtt")
+
+        !include("..\\Shaders\\__Clouds.mtt")
+
+        blendfunc("inv_dest_alpha", "dest_alpha")
+        depthfunc("lequal", 0)
+        AlphaFunc("greater", 0)
+    }
+}
+
+shader()
+{
+    ShaderQuality(1)
+    cull("cw")
+    sortweight("preblended")
+    pass()
+    {
+        tmu()
+        {
+            texture()
+            {
+                usermap(0)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+
+            texgen("projected")
+        }
+
+        blendfunc("inv_dest_alpha", "dest_alpha")
+        depthfunc("lequal", 0)
+        AlphaFunc("greater", 0)
+    }
+}
+
+
+

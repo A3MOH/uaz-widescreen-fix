@@ -202,7 +202,7 @@ Interface("UI_HUD")
         ParentSizingY(0)
         TextureAlpha(1.0)
         LogicSize(0.14355463,0.20052083)
-        LogicPos(1.1000777,0.29687485)
+        LogicPos(1.101,0.29687485)
  
         Static("UIStatic","ID_PLACE_1_LABEL","Specific")
         {
@@ -2114,7 +2114,7 @@ Interface("UI_HUD")
         ParentSizingY(0)
         TextureAlpha(1.0)
         LogicSize(0.11230461,0.11328116)
-        LogicPos(0.58052677,2.9296827)
+        LogicPos(0.88052677,2.9296827)
  
         Static("UIStatic","ID_LAP_ACTUAL","Specific")
         {
@@ -3277,7 +3277,7 @@ Interface("UI_HUD")
         TextureID("HUD_Penalty_Back")
         TextureAlpha(1.0)
         LogicSize(0.17285156,0.08984375)
-        LogicPos(0.8154297,0.51171875)
+        LogicPos(1.0833333,0.51171875)
     }// [UIWindow] ID_PENALTY_BACK
 
 

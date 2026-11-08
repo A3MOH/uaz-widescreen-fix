@@ -1,0 +1,90 @@
+$TEX1OPTIONSFILE(s,"")
+
+shader()
+{// >=gf3
+    sortweight("translucent8")
+    Cull("none")
+	Shaderquality(3)
+    stream("color", 0)
+
+    pass()
+    {
+        Pixelshader("Grass.psh")
+        tmu()
+        {
+            texture()
+            {
+                Image(TEXTURE1)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+        }
+        !include("__Clouds.mtt")
+
+        BlendFunc("src_alpha","inv_src_alpha")
+        AlphaFunc("greater", 32 )
+        DepthFunc("lequal", 0)
+    }
+
+    lightpass()
+    !include("SpotGrass.mtt")
+}
+
+
+shader()
+{// >=gf3
+    sortweight("translucent8")
+    Cull("none")
+	Shaderquality(1)
+    stream("color", 0)
+
+    pass()
+    {
+        Pixelshader("GrassVeryLow.psh")
+        tmu()
+        {
+            texture()
+            {
+                Image(TEXTURE1)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+        }
+        BlendFunc("src_alpha","inv_src_alpha")
+        AlphaFunc("greater", 32 )
+        DepthFunc("lequal", 0)
+    }
+    lightpass()
+    !include("SpotGrass.mtt")
+}
+
+
+shader()
+{//gf2
+    sortweight("translucent8")
+    Cull("ccw")
+    Shaderquality(0)
+//    stream("color", 0)
+
+    pass()
+    {
+
+        tmu()
+        {
+
+            texture()
+            {
+                Image(TEXTURE1)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+
+
+
+        }
+
+        BlendFunc("src_alpha","inv_src_alpha")
+        AlphaFunc("greater", 32 )
+        DepthFunc("lequal", 0)
+    }
+
+
+}
+

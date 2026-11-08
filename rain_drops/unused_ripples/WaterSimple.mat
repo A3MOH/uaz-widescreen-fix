@@ -1,0 +1,60 @@
+shader()
+{
+    ShaderQuality(4)
+    cull("cw")
+    sortweight("preblended")
+    pass()
+    {
+        Vertexshader("WaterSimpleRain.vsh")
+        Pixelshader("WaterSimpleRain20.psh")
+
+        tmu()
+        {
+            texture()
+            {
+                usermap(0)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+            texgen("projected")
+        }
+        tmu()
+        {
+            texture()
+            {
+                Image("RainRipples.dds")
+            }
+        }
+        Tfactor(1, 1, 1, 0.4)
+
+        blendfunc("src_alpha", "inv_src_alpha")
+        depthfunc("lequal", 0)
+    }
+}
+
+shader()
+{
+    cull("cw")
+    sortweight("preblended")
+    pass()
+    {
+        tmu()
+        {
+            texture()
+            {
+                usermap(0)
+                addressfunc("clamp", "clamp", "clamp")
+            }
+
+            texgen("projected")
+            ColorOp("arg1", "texture", "current", "current")
+            AlphaOp("arg1", "tfactor", "current", "current")
+        }
+        Tfactor(1, 1, 1, 0.4)
+
+        blendfunc("src_alpha", "inv_src_alpha")
+        depthfunc("lequal", 0)
+    }
+}
+
+
+

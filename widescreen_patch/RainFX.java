@@ -1,8 +1,8 @@
 public class RainFX
 {
 	static final String SWITCH_DIR = UIAspect.SWITCH_DIR;
-	static boolean s_bGlassDrops = !new java.io.File(SWITCH_DIR + "no_glass_drops.txt").exists();
-	static boolean s_bWetness = !new java.io.File(SWITCH_DIR + "no_wetness.txt").exists();
+	static boolean s_bGlassDrops = UIAspect.IniBool("glass_drops", "enabled", true);
+	static boolean s_bWetness = UIAspect.IniBool("wetness", "enabled", true);
 
 	static final float DROP_ACCEL_SMOOTH = 0.15f;
 	static final float DROP_JOLT_DECAY = 0.25f;
@@ -15,26 +15,12 @@ public class RainFX
 
 	static float[] ReadDropCfg()
 	{
-		float[] cfg = new float[] { 1.0f, 0.5f };
-		try
-		{
-			java.io.BufferedReader r = new java.io.BufferedReader(new java.io.FileReader(SWITCH_DIR + "glass_drops.txt"));
-			String s = r.readLine();
-			r.close();
-			if (s != null)
-			{
-				java.util.StringTokenizer t = new java.util.StringTokenizer(s.trim());
-				for (int i = 0; i < cfg.length && t.hasMoreTokens(); i++)
-				{
-					float v = Float.parseFloat(t.nextToken());
-					if (v >= 0.0f && v <= 20.0f)
-						cfg[i] = v;
-				}
-			}
-		}
-		catch (Throwable e)
-		{
-		}
+		float[] cfg = new float[] {
+			UIAspect.IniFloat("glass_drops", "accel", 1.0f),
+			UIAspect.IniFloat("glass_drops", "bump", 0.5f) };
+		for (int i = 0; i < cfg.length; i++)
+			if (cfg[i] < 0.0f || cfg[i] > 20.0f)
+				cfg[i] = i == 0 ? 1.0f : 0.5f;
 		return cfg;
 	}
 
@@ -47,7 +33,7 @@ public class RainFX
 	static float s_fWetness = 0.0f;
 	static float s_fWetTime = 0.0f;
 	static float s_fWetStart = 0.0f;
-	static boolean s_bWetLog = new java.io.File(SWITCH_DIR + "wetness_log.txt").exists();
+	static boolean s_bWetLog = UIAspect.IniBool("wetness", "log", false);
 	static float s_fWetLogTime = -1000.0f;
 	static int s_iWetLogLines = 0;
 	static final float WET_LOG_STEP = 5.0f;
@@ -58,29 +44,120 @@ public class RainFX
 
 	static float[] ReadWetCfg()
 	{
-		float[] cfg = new float[] { 1.0f, -1.0f };
-		try
-		{
-			java.io.BufferedReader r = new java.io.BufferedReader(new java.io.FileReader(SWITCH_DIR + "wetness.txt"));
-			String s = r.readLine();
-			r.close();
-			if (s != null)
-			{
-				java.util.StringTokenizer t = new java.util.StringTokenizer(s.trim());
-				for (int i = 0; i < cfg.length && t.hasMoreTokens(); i++)
-					cfg[i] = Float.parseFloat(t.nextToken());
-			}
-		}
-		catch (Throwable e)
-		{
-		}
+		float[] cfg = new float[] {
+			UIAspect.IniFloat("wetness", "puddles", 1.0f),
+			UIAspect.IniFloat("wetness", "force", -1.0f) };
 		cfg[0] = Math.max(0.0f, Math.min(2.0f, cfg[0]));
 		cfg[1] = Math.min(1.0f, cfg[1]);
 		return cfg;
 	}
 
+	static boolean s_bWaterCam = UIAspect.IniBool("water", "camera", true);
+
+	// mods.ini [water] trees_lod / objects_lod for the water reflection, -1 = leave as is
+	static int[] s_aWaterLod = ReadWaterLod();
+	static boolean s_bTreeRefl = UIAspect.IniBool("water", "tree_refl_call", false);
+	static java.lang.ref.WeakReference s_rWaterLodModule = null;
+
+	static int[] ReadWaterLod()
+	{
+		return new int[] {
+			UIAspect.IniInt("water", "trees_lod", -1),
+			UIAspect.IniInt("water", "objects_lod", -1) };
+	}
+
+	// Camera position for the water shader (pixel shaders get no CAMERA_POS_WS).
+	static void WaterCamFrame(Weather w)
+	{
+		if (!s_bWaterCam)
+			return;
+		try
+		{
+			TrackModule tm = w.m_Module;
+			if (tm == null)
+				return;
+			Object prev = s_rWaterLodModule == null ? null : s_rWaterLodModule.get();
+			if (prev != tm)
+			{
+				s_rWaterLodModule = new java.lang.ref.WeakReference(tm);
+				if (s_aWaterLod[0] >= 0)
+					tm.SetWaterTreesLOD(s_aWaterLod[0]);
+				if (s_aWaterLod[1] >= 0)
+					tm.SetWaterObjectsLOD(s_aWaterLod[1]);
+				// reflected tree billboards: own material sorted before the water, so the water blends over them
+				if (s_bTreeRefl)
+					tm.SetTreesBBReflMaterials("billboards_refl.mat", "billboards_refl.mat");
+			}
+			Vector p = tm.GetCameraPosition();
+			if (p == null)
+				return;
+			Renderer.SetVarFloat("watercam_x", p.fX);
+			Renderer.SetVarFloat("watercam_y", p.fY);
+			Renderer.SetVarFloat("watercam_z", p.fZ);
+		}
+		catch (Throwable e)
+		{
+		}
+	}
+
+	static final float RIPPLE_RATE = 1.2f;	// rain ring cycles per second
+	static final float RIPPLE_SMOOTH = 0.5f;	// seconds to follow rain changes
+	static float s_fRippleRain = 0.0f;
+	static float s_fRippleTime = -1.0f;
+
+	// Rain rings on water: raintime = ring clock, rainnow = current rain 0..1
+	static void RainRippleFrame(Weather w)
+	{
+		if (!s_bWaterCam)
+			return;
+		try
+		{
+			float fTime = w.GetTime();
+			float fRain = w.GetRainPercentage();
+			TrackModule tm = w.m_Module;
+			if (tm != null && tm.m_bRainEnabled)
+				fRain = Math.max(fRain, tm.m_fRainDensity > 0.0f ? Math.min(1.0f, tm.m_fRainDensity / 100.0f) : WET_RAIN_DEFAULT);
+			if (w.IsSnowyWeather())
+				fRain = 0.0f;
+			float dt = s_fRippleTime < 0.0f || fTime < s_fRippleTime ? 1.0f : Math.min(fTime - s_fRippleTime, 1.0f);
+			s_fRippleTime = fTime;
+			s_fRippleRain += (fRain - s_fRippleRain) * Math.min(1.0f, dt / RIPPLE_SMOOTH);
+			Renderer.SetVarFloat("raintime", (fTime * RIPPLE_RATE) % 1000.0f);
+			Renderer.SetVarFloat("rainnow", s_fRippleRain);
+			BeadFrame(fTime);
+		}
+		catch (Throwable e)
+		{
+		}
+	}
+
+	// Car water beads: two layers of the bead texture crossfade; each layer jumps to a new
+	// random offset while it is invisible, so beads appear and fade away without popping.
+	static float s_fBeadLife = UIAspect.IniFloat("wet_cars", "bead_life", 8.0f);
+
+	static float Frac(float f)
+	{
+		return f - (float)Math.floor(f);
+	}
+
+	static void BeadFrame(float fTime)
+	{
+		float fLife = Math.max(0.01f, s_fBeadLife);
+		float t = fTime / fLife;
+		float tA = t, tB = t + 0.25f;
+		float nA = (float)Math.floor(tA), nB = (float)Math.floor(tB);
+		float fMix = 1.0f - Math.abs(Frac(tA) * 2.0f - 1.0f);
+		Renderer.SetVarFloat("bead_a_u", Frac(nA * 0.618034f));
+		Renderer.SetVarFloat("bead_a_v", Frac(nA * 0.414214f + 0.3f));
+		Renderer.SetVarFloat("bead_b_u", Frac(nB * 0.732051f + 0.5f));
+		Renderer.SetVarFloat("bead_b_v", Frac(nB * 0.236068f + 0.7f));
+		Renderer.SetVarFloat("bead_mix", fMix);
+	}
+
 	public static void WeatherFrame(Weather w)
 	{
+		WaterCamFrame(w);
+		RainRippleFrame(w);
 		if (!s_bWetness)
 			return;
 		try
@@ -122,7 +199,7 @@ public class RainFX
 				s_iWetLogLines++;
 				try
 				{
-					java.io.FileWriter fw = new java.io.FileWriter(SWITCH_DIR + "wetness_log.txt", true);
+					java.io.FileWriter fw = new java.io.FileWriter("wetness_log.txt", true);
 					fw.write("t=" + fTime + " pct=" + w.GetRainPercentage()
 						+ " enabled=" + (tm != null && tm.m_bRainEnabled)
 						+ " density=" + (tm != null ? tm.m_fRainDensity : -1.0f)

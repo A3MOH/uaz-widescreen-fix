@@ -1,0 +1,576 @@
+!include("../../Maps/Climate.def")
+
+State("Day")
+{
+	//SKY COLOR, RGB = kolor nieba, A = Flag: Turn On/Off sun
+	VarFloat("skycolor_r", 0.14)
+	VarFloat("skycolor_g", 0.24)
+	VarFloat("skycolor_b", 0.56)
+	VarFloat("skycolor_a", 1.00)
+
+	//DAY COLOR, RGB = Day (light) color, A = Flag: Turn On/Off lights
+	VarFloat("daycolor_r", 1.00)
+	VarFloat("daycolor_g", 0.95)
+	VarFloat("daycolor_b", 0.85)
+	VarFloat("daycolor_a", 0.00)
+
+	//FOG COLOR, RGB = Fog color, A = Fog Far Factor
+	VarFog("fogcolor_r", 0.68,
+	"fogcolor_g", 0.78,
+	"fogcolor_b", 0.82)
+	VarFogFar( 1.00)
+
+	//AMBIENT COLOR, RGB = Ambient color (MUL), A = Ambient power - inverted ambient (ADD)
+	VarFloat("ambient_r", 0.70)
+	VarFloat("ambient_g", 0.70)
+	VarFloat("ambient_b", 0.70)
+	VarFloat("ambient_a", 0.30)
+
+	VarFloat("dyncubemap_skycolor_r", 0.14)
+	VarFloat("dyncubemap_skycolor_g", 0.24)
+	VarFloat("dyncubemap_skycolor_b", 0.56)
+	VarFloat("dyncubemap_skycolor_a", 1.00)
+	VarFloat("dyncubemap_daycolor_r", 1.00)
+	VarFloat("dyncubemap_daycolor_g", 0.95)
+	VarFloat("dyncubemap_daycolor_b", 0.85)
+	VarFloat("dyncubemap_daycolor_a", 0.00)
+	VarFloat("dyncubemap_fogcolor_r", 0.68)
+	VarFloat("dyncubemap_fogcolor_g", 0.78)
+	VarFloat("dyncubemap_fogcolor_b", 0.82)
+	VarFloat("dyncubemap_fogcolor_a", 1.00)
+	VarFloat("dyncubemap_ambient_r", 0.70)
+	VarFloat("dyncubemap_ambient_g", 0.70)
+	VarFloat("dyncubemap_ambient_b", 0.70)
+	VarFloat("dyncubemap_ambient_a", 0.30)
+
+	// Dirt color
+	VarFloat("dirtcolor_r", 0.37)
+	VarFloat("dirtcolor_g", 0.34)
+	VarFloat("dirtcolor_b", 0.29)
+
+	// Dirt type
+	VarFloat("dirtsnow", 0.0)
+	VarFloat("dirtgravel", 1.0)
+	VarFloat("dirtmud", 0.0)
+
+
+	//Nasilenie deszczu - wartoœæ mno¿ona przez m_iRainDropsNumber
+	VarRain( 0.0)
+	VarSun(1.0)
+
+	VarFloat("sunvisibility", 1.00)
+	VarFloat("moonvisibility", 0.00)
+
+    VarString("cloudstexture", "Clouds.dds")
+    
+    VarInt("CarNightLights", 1)
+		VarLightColor(0.4, 0.4, 0.4)
+}
+
+State("Dusk")
+{
+	//SKY COLOR, RGB = kolor nieba, A = Flag: Turn On/Off sun
+	VarFloat("skycolor_r", 0.08)
+	VarFloat("skycolor_g", 0.06)
+	VarFloat("skycolor_b", 0.10)
+	VarFloat("skycolor_a", 1.00)
+
+	//DAY COLOR, RGB = Day (light) color, A = Flag: Turn On/Off lights
+	VarFloat("daycolor_r", 0.67)
+	VarFloat("daycolor_g", 0.41)
+	VarFloat("daycolor_b", 0.21)
+	VarFloat("daycolor_a", 1.00)
+
+	//FOG COLOR, RGB = Fog color, A = Fog Far Factor
+	VarFog("fogcolor_r", 1.00,
+	"fogcolor_g", 0.69,
+	"fogcolor_b", 0.41)
+	VarFogFar( 1.00)
+
+	//AMBIENT COLOR, RGB = Ambient color (MUL), A = Ambient power - inverted ambient (ADD)
+	VarFloat("ambient_r", 0.90)
+	VarFloat("ambient_g", 0.90)
+	VarFloat("ambient_b", 0.90)
+	VarFloat("ambient_a", 0.10)
+
+	VarFloat("dyncubemap_skycolor_r", 0.08)
+	VarFloat("dyncubemap_skycolor_g", 0.06)
+	VarFloat("dyncubemap_skycolor_b", 0.10)
+	VarFloat("dyncubemap_skycolor_a", 1.00)
+	VarFloat("dyncubemap_daycolor_r", 0.67)
+	VarFloat("dyncubemap_daycolor_g", 0.41)
+	VarFloat("dyncubemap_daycolor_b", 0.21)
+	VarFloat("dyncubemap_daycolor_a", 0.00)
+	VarFloat("dyncubemap_fogcolor_r", 1.00)
+	VarFloat("dyncubemap_fogcolor_g", 0.69)
+	VarFloat("dyncubemap_fogcolor_b", 0.41)
+	VarFloat("dyncubemap_fogcolor_a", 1.00)
+	VarFloat("dyncubemap_ambient_r", 0.90)
+	VarFloat("dyncubemap_ambient_g", 0.90)
+	VarFloat("dyncubemap_ambient_b", 0.90)
+	VarFloat("dyncubemap_ambient_a", 0.10)
+
+	// Dirt color
+	VarFloat("dirtcolor_r", 0.37)
+	VarFloat("dirtcolor_g", 0.34)
+	VarFloat("dirtcolor_b", 0.29)
+
+	// Dirt type
+	VarFloat("dirtsnow", 0.0)
+	VarFloat("dirtgravel", 1.0)
+	VarFloat("dirtmud", 0.0)
+
+
+	//Nasilenie deszczu - wartoœæ mno¿ona przez m_iRainDropsNumber
+	VarRain( 0.0)
+	VarSun(0.0)
+
+	VarFloat("sunvisibility", 0.00)
+	VarFloat("moonvisibility", 0.00)
+	
+    VarString("cloudstexture", "Clouds.dds")
+
+    VarInt("CarNightLights", 1)
+		VarLightColor(0.7, 0.7, 0.7)
+}
+
+State("Night")
+{
+	//SKY COLOR, RGB = kolor nieba, A = Flag: Turn On/Off sun
+	VarFloat("skycolor_r", 0.07)
+	VarFloat("skycolor_g", 0.10)
+	VarFloat("skycolor_b", 0.19)
+	VarFloat("skycolor_a", 0.00)
+
+	//DAY COLOR, RGB = Day (light) color, A = Flag: Turn On/Off lights
+	VarFloat("daycolor_r", 0.15)
+	VarFloat("daycolor_g", 0.20)
+	VarFloat("daycolor_b", 0.35)
+	VarFloat("daycolor_a", 1.00)
+
+	//FOG COLOR, RGB = Fog color, A = Fog Far Factor
+	VarFog("fogcolor_r", 0.00,
+	"fogcolor_g", 0.00,
+	"fogcolor_b", 0.00)
+	VarFogFar( 0.30)
+
+	//AMBIENT COLOR, RGB = Ambient color (MUL), A = Ambient power - inverted ambient (ADD)
+	VarFloat("ambient_r", 0.80)
+	VarFloat("ambient_g", 0.80)
+	VarFloat("ambient_b", 0.80)
+	VarFloat("ambient_a", 0.20)
+
+	VarFloat("dyncubemap_skycolor_r", 0.07)
+	VarFloat("dyncubemap_skycolor_g", 0.10)
+	VarFloat("dyncubemap_skycolor_b", 0.19)
+	VarFloat("dyncubemap_skycolor_a", 0.00)
+	VarFloat("dyncubemap_daycolor_r", 0.15)
+	VarFloat("dyncubemap_daycolor_g", 0.20)
+	VarFloat("dyncubemap_daycolor_b", 0.35)
+	VarFloat("dyncubemap_daycolor_a", 0.00)
+	VarFloat("dyncubemap_fogcolor_r", 0.00)
+	VarFloat("dyncubemap_fogcolor_g", 0.00)
+	VarFloat("dyncubemap_fogcolor_b", 0.00)
+	VarFloat("dyncubemap_fogcolor_a", 0.30)
+	VarFloat("dyncubemap_ambient_r", 0.80)
+	VarFloat("dyncubemap_ambient_g", 0.80)
+	VarFloat("dyncubemap_ambient_b", 0.80)
+	VarFloat("dyncubemap_ambient_a", 0.20)
+
+	// Dirt color
+	VarFloat("dirtcolor_r", 0.37)
+	VarFloat("dirtcolor_g", 0.34)
+	VarFloat("dirtcolor_b", 0.29)
+
+	// Dirt type
+	VarFloat("dirtsnow", 0.0)
+	VarFloat("dirtgravel", 1.0)
+	VarFloat("dirtmud", 0.0)
+
+
+	//Nasilenie deszczu - wartoœæ mno¿ona przez m_iRainDropsNumber
+	VarRain( 0.0)
+	VarSun(0.0)
+
+	VarFloat("sunvisibility", 0.00)
+	VarFloat("moonvisibility", 1.00)
+
+    VarString("cloudstexture", "Clouds.dds")
+    
+    VarInt("CarNightLights", 1)
+		VarLightColor(1.0, 1.0, 1.0)
+}
+
+State("Dawn")
+{
+	//SKY COLOR, RGB = kolor nieba, A = Flag: Turn On/Off sun
+	VarFloat("skycolor_r", 0.11)
+	VarFloat("skycolor_g", 0.09)
+	VarFloat("skycolor_b", 0.16)
+	VarFloat("skycolor_a", 1.00)
+
+	//DAY COLOR, RGB = Day (light) color, A = Flag: Turn On/Off lights
+	VarFloat("daycolor_r", 0.76)
+	VarFloat("daycolor_g", 0.46)
+	VarFloat("daycolor_b", 0.31)
+	VarFloat("daycolor_a", 1.00)
+
+	//FOG COLOR, RGB = Fog color, A = Fog Far Factor
+	VarFog("fogcolor_r", 1.00,
+	"fogcolor_g", 0.79,
+	"fogcolor_b", 0.54)
+	VarFogFar( 1.00)
+
+	//AMBIENT COLOR, RGB = Ambient color (MUL), A = Ambient power - inverted ambient (ADD)
+	VarFloat("ambient_r", 0.80)
+	VarFloat("ambient_g", 0.80)
+	VarFloat("ambient_b", 0.80)
+	VarFloat("ambient_a", 0.20)
+
+	VarFloat("dyncubemap_skycolor_r", 0.11)
+	VarFloat("dyncubemap_skycolor_g", 0.09)
+	VarFloat("dyncubemap_skycolor_b", 0.16)
+	VarFloat("dyncubemap_skycolor_a", 1.00)
+	VarFloat("dyncubemap_daycolor_r", 0.76)
+	VarFloat("dyncubemap_daycolor_g", 0.46)
+	VarFloat("dyncubemap_daycolor_b", 0.31)
+	VarFloat("dyncubemap_daycolor_a", 0.00)
+	VarFloat("dyncubemap_fogcolor_r", 1.00)
+	VarFloat("dyncubemap_fogcolor_g", 0.79)
+	VarFloat("dyncubemap_fogcolor_b", 0.54)
+	VarFloat("dyncubemap_fogcolor_a", 1.00)
+	VarFloat("dyncubemap_ambient_r", 0.80)
+	VarFloat("dyncubemap_ambient_g", 0.80)
+	VarFloat("dyncubemap_ambient_b", 0.80)
+	VarFloat("dyncubemap_ambient_a", 0.20)
+
+	// Dirt color
+	VarFloat("dirtcolor_r", 0.37)
+	VarFloat("dirtcolor_g", 0.34)
+	VarFloat("dirtcolor_b", 0.29)
+
+	// Dirt type
+	VarFloat("dirtsnow", 0.0)
+	VarFloat("dirtgravel", 1.0)
+	VarFloat("dirtmud", 0.0)
+
+
+	//Nasilenie deszczu - wartoœæ mno¿ona przez m_iRainDropsNumber
+	VarRain( 0.0)
+	VarSun(0.0)
+
+	VarFloat("sunvisibility", 0.00)
+	VarFloat("moonvisibility", 0.00)
+
+    VarString("cloudstexture", "Clouds.dds")
+    
+    VarInt("CarNightLights", 1)
+		VarLightColor(0.7, 0.7, 0.7)
+}
+
+
+State("DayRain")
+{
+	//SKY COLOR, RGB = kolor nieba, A = Flag: Turn On/Off sun
+	VarFloat("skycolor_r", 0.59)
+	VarFloat("skycolor_g", 0.58)
+	VarFloat("skycolor_b", 0.60)
+	VarFloat("skycolor_a", 0.00)
+
+	//DAY COLOR, RGB = Day (light) color, A = Flag: Turn On/Off lights
+	VarFloat("daycolor_r", 0.47)
+	VarFloat("daycolor_g", 0.46)
+	VarFloat("daycolor_b", 0.48)
+	VarFloat("daycolor_a", 1.00)
+
+	//FOG COLOR, RGB = Fog color, A = Fog Far Factor
+	VarFog("fogcolor_r", 0.35,
+	"fogcolor_g", 0.34,
+	"fogcolor_b", 0.36)
+	VarFogFar( 0.15)
+
+	//AMBIENT COLOR, RGB = Ambient color (MUL), A = Ambient power - inverted ambient (ADD)
+	VarFloat("ambient_r", 0.15)
+	VarFloat("ambient_g", 0.15)
+	VarFloat("ambient_b", 0.15)
+	VarFloat("ambient_a", 0.85)
+
+	VarFloat("dyncubemap_skycolor_r", 0.59)
+	VarFloat("dyncubemap_skycolor_g", 0.58)
+	VarFloat("dyncubemap_skycolor_b", 0.60)
+	VarFloat("dyncubemap_skycolor_a", 0.00)
+	VarFloat("dyncubemap_daycolor_r", 0.47)
+	VarFloat("dyncubemap_daycolor_g", 0.46)
+	VarFloat("dyncubemap_daycolor_b", 0.48)
+	VarFloat("dyncubemap_daycolor_a", 0.00)
+	VarFloat("dyncubemap_fogcolor_r", 0.35)
+	VarFloat("dyncubemap_fogcolor_g", 0.34)
+	VarFloat("dyncubemap_fogcolor_b", 0.36)
+	VarFloat("dyncubemap_fogcolor_a", 0.15)
+	VarFloat("dyncubemap_ambient_r", 0.15)
+	VarFloat("dyncubemap_ambient_g", 0.15)
+	VarFloat("dyncubemap_ambient_b", 0.15)
+	VarFloat("dyncubemap_ambient_a", 0.85)
+
+	// Dirt color
+	VarFloat("dirtcolor_r", 0.27)
+	VarFloat("dirtcolor_g", 0.24)
+	VarFloat("dirtcolor_b", 0.19)
+
+	// Dirt type
+	VarFloat("dirtsnow", 0.0)
+	VarFloat("dirtgravel", 0.0)
+	VarFloat("dirtmud", 1.0)
+
+
+	//Nasilenie deszczu - wartoœæ mno¿ona przez m_iRainDropsNumber
+	VarRain( 1.0)
+	VarSun(0.0)
+
+	VarFloat("sunvisibility", 0.00)
+	VarFloat("moonvisibility", 0.00)
+
+    VarString("cloudstexture", "CloudsHeavy.dds")
+    
+    VarInt("CarNightLights", 1)
+		VarLightColor(0.5, 0.5, 0.5)
+
+Wet()
+}
+
+State("DuskRain")
+{
+	//SKY COLOR, RGB = kolor nieba, A = Flag: Turn On/Off sun
+	VarFloat("skycolor_r", 0.33)
+	VarFloat("skycolor_g", 0.28)
+	VarFloat("skycolor_b", 0.27)
+	VarFloat("skycolor_a", 0.00)
+
+	//DAY COLOR, RGB = Day (light) color, A = Flag: Turn On/Off lights
+	VarFloat("daycolor_r", 0.26)
+	VarFloat("daycolor_g", 0.24)
+	VarFloat("daycolor_b", 0.23)
+	VarFloat("daycolor_a", 1.00)
+
+	//FOG COLOR, RGB = Fog color, A = Fog Far Factor
+	VarFog("fogcolor_r", 0.15,
+	"fogcolor_g", 0.15,
+	"fogcolor_b", 0.18)
+	VarFogFar( 0.15)
+
+	//AMBIENT COLOR, RGB = Ambient color (MUL), A = Ambient power - inverted ambient (ADD)
+	VarFloat("ambient_r", 0.30)
+	VarFloat("ambient_g", 0.30)
+	VarFloat("ambient_b", 0.30)
+	VarFloat("ambient_a", 0.70)
+
+	VarFloat("dyncubemap_skycolor_r", 0.33)
+	VarFloat("dyncubemap_skycolor_g", 0.28)
+	VarFloat("dyncubemap_skycolor_b", 0.27)
+	VarFloat("dyncubemap_skycolor_a", 0.00)
+	VarFloat("dyncubemap_daycolor_r", 0.26)
+	VarFloat("dyncubemap_daycolor_g", 0.24)
+	VarFloat("dyncubemap_daycolor_b", 0.23)
+	VarFloat("dyncubemap_daycolor_a", 0.00)
+	VarFloat("dyncubemap_fogcolor_r", 0.15)
+	VarFloat("dyncubemap_fogcolor_g", 0.15)
+	VarFloat("dyncubemap_fogcolor_b", 0.18)
+	VarFloat("dyncubemap_fogcolor_a", 0.15)
+	VarFloat("dyncubemap_ambient_r", 0.30)
+	VarFloat("dyncubemap_ambient_g", 0.30)
+	VarFloat("dyncubemap_ambient_b", 0.30)
+	VarFloat("dyncubemap_ambient_a", 0.70)
+
+	// Dirt color
+	VarFloat("dirtcolor_r", 0.27)
+	VarFloat("dirtcolor_g", 0.24)
+	VarFloat("dirtcolor_b", 0.19)
+
+	// Dirt type
+	VarFloat("dirtsnow", 0.0)
+	VarFloat("dirtgravel", 0.0)
+	VarFloat("dirtmud", 1.0)
+
+
+	//Nasilenie deszczu - wartoœæ mno¿ona przez m_iRainDropsNumber
+	VarRain( 1.0)
+	VarSun(0.0)
+
+	VarFloat("sunvisibility", 0.00)
+	VarFloat("moonvisibility", 0.00)
+
+    VarString("cloudstexture", "CloudsHeavy.dds")
+    
+    VarInt("CarNightLights", 1)
+		VarLightColor(1.0, 1.0, 1.0)
+
+Wet()
+Night()
+}
+
+State("NightRain")
+{
+	//SKY COLOR, RGB = kolor nieba, A = Flag: Turn On/Off sun
+	VarFloat("skycolor_r", 0.08)
+	VarFloat("skycolor_g", 0.06)
+	VarFloat("skycolor_b", 0.09)
+	VarFloat("skycolor_a", 0.00)
+
+	//DAY COLOR, RGB = Day (light) color, A = Flag: Turn On/Off lights
+	VarFloat("daycolor_r", 0.06)
+	VarFloat("daycolor_g", 0.05)
+	VarFloat("daycolor_b", 0.07)
+	VarFloat("daycolor_a", 1.00)
+
+	//FOG COLOR, RGB = Fog color, A = Fog Far Factor
+	VarFog("fogcolor_r", 0.0,
+	"fogcolor_g", 0.0,
+	"fogcolor_b", 0.0)
+	VarFogFar( 0.075)
+
+	//AMBIENT COLOR, RGB = Ambient color (MUL), A = Ambient power - inverted ambient (ADD)
+	VarFloat("ambient_r", 0.00)
+	VarFloat("ambient_g", 0.00)
+	VarFloat("ambient_b", 0.00)
+	VarFloat("ambient_a", 1.00)
+
+	VarFloat("dyncubemap_skycolor_r", 0.08)
+	VarFloat("dyncubemap_skycolor_g", 0.06)
+	VarFloat("dyncubemap_skycolor_b", 0.09)
+	VarFloat("dyncubemap_skycolor_a", 0.00)
+	VarFloat("dyncubemap_daycolor_r", 0.06)
+	VarFloat("dyncubemap_daycolor_g", 0.05)
+	VarFloat("dyncubemap_daycolor_b", 0.07)
+	VarFloat("dyncubemap_daycolor_a", 0.00)
+	VarFloat("dyncubemap_fogcolor_r", 0.0)
+	VarFloat("dyncubemap_fogcolor_g", 0.0)
+	VarFloat("dyncubemap_fogcolor_b", 0.0)
+	VarFloat("dyncubemap_fogcolor_a", 0.075)
+	VarFloat("dyncubemap_ambient_r", 0.00)
+	VarFloat("dyncubemap_ambient_g", 0.00)
+	VarFloat("dyncubemap_ambient_b", 0.00)
+	VarFloat("dyncubemap_ambient_a", 1.00)
+
+	// Dirt color
+	VarFloat("dirtcolor_r", 0.27)
+	VarFloat("dirtcolor_g", 0.24)
+	VarFloat("dirtcolor_b", 0.19)
+
+	// Dirt type
+	VarFloat("dirtsnow", 0.0)
+	VarFloat("dirtgravel", 0.0)
+	VarFloat("dirtmud", 1.0)
+
+
+	//Nasilenie deszczu - wartoœæ mno¿ona przez m_iRainDropsNumber
+	VarRain( 1.0)
+	VarSun(0.0)
+
+	VarFloat("sunvisibility", 0.00)
+	VarFloat("moonvisibility", 0.00)
+
+    VarString("cloudstexture", "CloudsHeavy.dds")
+    
+    VarInt("CarNightLights", 1)
+		VarLightColor(1.0, 1.0, 1.0)
+
+Wet()
+Night()
+
+}
+
+State("DawnRain")
+{
+	//SKY COLOR, RGB = kolor nieba, A = Flag: Turn On/Off sun
+	VarFloat("skycolor_r", 0.30)
+	VarFloat("skycolor_g", 0.29)
+	VarFloat("skycolor_b", 0.29)
+	VarFloat("skycolor_a", 0.00)
+
+	//DAY COLOR, RGB = Day (light) color, A = Flag: Turn On/Off lights
+	VarFloat("daycolor_r", 0.33)
+	VarFloat("daycolor_g", 0.28)
+	VarFloat("daycolor_b", 0.27)
+	VarFloat("daycolor_a", 1.00)
+
+	//FOG COLOR, RGB = Fog color, A = Fog Far Factor
+	VarFog("fogcolor_r", 0.22,
+	"fogcolor_g", 0.21,
+	"fogcolor_b", 0.21)
+	VarFogFar( 0.15)
+
+	//AMBIENT COLOR, RGB = Ambient color (MUL), A = Ambient power - inverted ambient (ADD)
+	VarFloat("ambient_r", 0.30)
+	VarFloat("ambient_g", 0.30)
+	VarFloat("ambient_b", 0.30)
+	VarFloat("ambient_a", 0.70)
+
+	VarFloat("dyncubemap_skycolor_r", 0.30)
+	VarFloat("dyncubemap_skycolor_g", 0.29)
+	VarFloat("dyncubemap_skycolor_b", 0.29)
+	VarFloat("dyncubemap_skycolor_a", 0.00)
+	VarFloat("dyncubemap_daycolor_r", 0.33)
+	VarFloat("dyncubemap_daycolor_g", 0.28)
+	VarFloat("dyncubemap_daycolor_b", 0.27)
+	VarFloat("dyncubemap_daycolor_a", 0.00)
+	VarFloat("dyncubemap_fogcolor_r", 0.22)
+	VarFloat("dyncubemap_fogcolor_g", 0.21)
+	VarFloat("dyncubemap_fogcolor_b", 0.21)
+	VarFloat("dyncubemap_fogcolor_a", 0.15)
+	VarFloat("dyncubemap_ambient_r", 0.30)
+	VarFloat("dyncubemap_ambient_g", 0.30)
+	VarFloat("dyncubemap_ambient_b", 0.30)
+	VarFloat("dyncubemap_ambient_a", 0.70)
+
+	// Dirt color
+	VarFloat("dirtcolor_r", 0.27)
+	VarFloat("dirtcolor_g", 0.24)
+	VarFloat("dirtcolor_b", 0.19)
+
+	// Dirt type
+	VarFloat("dirtsnow", 0.0)
+	VarFloat("dirtgravel", 0.0)
+	VarFloat("dirtmud", 1.0)
+
+
+	//Nasilenie deszczu - wartoœæ mno¿ona przez m_iRainDropsNumber
+	VarRain( 1.0)
+	VarSun(0.0)
+
+	VarFloat("sunvisibility", 0.00)
+	VarFloat("moonvisibility", 0.00)
+
+    VarString("cloudstexture", "CloudsHeavy.dds")
+    
+    VarInt("CarNightLights", 1)
+		VarLightColor(1.0, 1.0, 1.0)
+
+Wet()
+Night()
+
+}
+
+Weather("clear")
+{
+	DayTime(0, 6, "Night")
+	DayTimeTrans(6, 8, "Night", "Dawn")
+	DayTimeTrans(8, 10, "Dawn", "Day")
+	DayTime(8, 17, "Day")
+	DayTimeTrans(17, 19, "Day", "Dusk")
+	DayTimeTrans(19, 21, "Dusk", "Night")
+	DayTime(21, 24, "Night")
+}
+
+Weather("rainy")
+{
+	DayTime(0, 6, "NightRain")
+	DayTimeTrans(6, 8, "NightRain", "DawnRain")
+	DayTimeTrans(8, 10, "DawnRain", "DayRain")
+	DayTime(8, 17, "DayRain")
+	DayTimeTrans(17, 19, "DayRain", "DuskRain")
+	DayTimeTrans(19, 21, "DuskRain", "NightRain")
+	DayTime(21, 24, "NightRain")
+	Rain(0.4, 0.5, 0.1) 
+
+}
+

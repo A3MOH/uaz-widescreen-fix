@@ -1,0 +1,94 @@
+
+regc( 0, "TFACTOR" )
+regc4f( 3, %dirtcolor_r, %dirtcolor_g, %dirtcolor_b, 0.0 )
+regc4f( 4, %dirtsnow, %dirtgravel, %dirtmud, 0.0 )
+regc4f( 5, %daycolor_r, %daycolor_g, %daycolor_b, %daycolor_a )
+regc4f( 6, %bead_a_u, %bead_a_v, %bead_b_u, %bead_b_v )
+regc4f( 2, %bead_mix, 0.0, 0.0, 0.0 )
+regc4f( 7, %ambient_r, %ambient_g, %ambient_b, %ambient_a )
+
+hlsl("
+
+#include <../common_hlsl.h>
+#include <cardef.h>
+
+sampler2D	sColor: register(s0); 	
+sampler2D	sDirt: register(s1);	
+sampler2D	sClouds: register(s2);
+sampler2D	sLightmap: register(s3);
+samplerCUBE	sCubemap: register(s4);
+//sampler2D	sDirtNormalmap: register(s5);
+sampler2D	sBeads: register(s6);
+
+const HALF4 DirtLevel : register(c0); // DirtLevel.a 
+const HALF4 DirtColor : register(c3);
+const HALF3 DirtType : register(c4);
+const HALF3 DayColor : register(c5);
+const float4 BeadOfs : register(c6);   // two bead layers, offsets jump while a layer is invisible
+const float4 BeadMix : register(c2);   // x = weight of layer A (set by RainFX every frame)
+const HALF4 Ambient : register(c7);
+
+#define BEAD_TILE		24.0	// more = smaller beads
+#define BEAD_REFL		0.25	// reflection inside a bead
+#define BEAD_GLINT		3.0
+
+struct PS_INPUT
+{
+	HALF4		SpotDiffuse_and_Diffuse: COLOR0;
+	HALF4		Specular_and_Fresnel: COLOR1;
+    HALF2       uvColor : TEXCOORD0;	
+	HALF		DamageLevel: TEXCOORD1;
+    HALF2       uvClouds: TEXCOORD2;  
+    HALF2       uvLightmap: TEXCOORD3;
+    HALF3       uvwCubemap: TEXCOORD4;
+    HALF4       Wet: TEXCOORD5;             
+};    
+    
+HALF4 main( PS_INPUT i ): COLOR {
+
+	HALF 	Fresnel = i.Specular_and_Fresnel.a;
+	HALF 	DamageLevel = i.DamageLevel;
+	HALF4 	DirtScratch = tex2D( sDirt, i.uvColor );
+	HALF 	Scratch = DirtScratch.a*DamageLevel;
+
+	HALF 	DirtMask = saturate(dot(DirtScratch.rgb, DirtType)*DirtLevel.a - Scratch);
+    HALF 	Diffuse = i.SpotDiffuse_and_Diffuse.a;
+    HALF 	Specular = i.Specular_and_Fresnel.b;
+	HALF3 	Cubemap	= texCUBE( sCubemap, i.uvwCubemap);
+	
+	HALF 	Clouds = 1-(tex2D(sClouds, i.uvClouds)).a;
+	HALF 	Lightmap = saturate((tex2D(sLightmap, i.uvLightmap)).a);
+	HALF 	Shadows = saturate(Clouds*Lightmap*SHADOWSMUL+SOFTSHADOWS);
+	HALF4 	Color = tex2D( sColor, i.uvColor );
+	HALF 	CubemapMask = saturate(Color.a*2-1);
+	HALF 	SpecularMask = saturate(Color.a*2);
+
+	Diffuse = saturate(Ambient.r*Shadows*Diffuse + Ambient.a);
+    CubemapMask = saturate(CubemapMask+Fresnel*CubemapMask*16-Scratch);    
+    CubemapMask *= 1-DirtMask;
+    SpecularMask *=(1-DirtMask)*Shadows;
+	
+	Color.rgb = lerp( Color, DirtColor, DirtMask);
+	Color.rgb = lerp( Color, SCRATCHCOLOR, Scratch);
+
+	float2 uvBead = i.uvColor*BEAD_TILE;
+	HALF4 Bead = lerp( tex2D( sBeads, uvBead + BeadOfs.zw ), tex2D( sBeads, uvBead + BeadOfs.xy ), BeadMix.x );	// only .a is used
+	HALF Paint = 1 - DirtMask;
+	HALF Beads = Bead.a*i.Wet.x*Paint;
+	Color.rgb *= 1 - i.Wet.z - i.Wet.w*DirtMask;
+	CubemapMask += i.Wet.y*Paint + Beads*BEAD_REFL;
+	Color.a = 0.4;  // water
+
+#if VS_SPOTLIGHTS
+	HALF3 Spot = Color.rgb*i.SpotDiffuse_and_Diffuse.rgb;
+#endif	
+    Color.rgb = saturate(Color*Diffuse+Specular*SpecularMask+Cubemap*CubemapMask)*DayColor;
+#if VS_SPOTLIGHTS
+	Color.rgb = saturate(Color+Spot);
+#endif
+	Color.a = WATERDEEP;  // water
+	
+	return Color;
+}
+")
+

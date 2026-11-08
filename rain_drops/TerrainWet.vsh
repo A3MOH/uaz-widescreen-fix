@@ -6,6 +6,7 @@ regc(8, "FOG_PARAMS")
 regc4f(10, %detailsize, %sidedetailsize, %detailsborder, %terrain_inv_x)
 regc(11, "CAMERA_POS_MS")
 regcn(12, "DIRECTIONAL_DIR_MS", 0)
+regc4f(17, %shorelevel, %shorerange, %shorebias, 0.0)
 
 vshader("
 
@@ -31,8 +32,20 @@ vshader("
 	dp4		oT2.x, v0, c4				;clouds
 	dp4		oT2.y, v0, c5				;clouds
 
-	dp4		oT3.x, v0, c6				;waterdeep
-	dp4		oT3.y, v0, c7				;waterdeep
+	; waterdeep, shore height from puddle map B: H = W - R + 2R*B
+	dp4		r7.x, v0, c6
+	dp4		r7.y, v0, c7
+	mov		r8.x, c6.y
+	mov		r8.y, c7.y
+	mov		r9, c17
+	slt		r9.w, c14.w, r9.y			;on = range > 0
+	mul		r8.xy, r8.xy, r9.w
+	add		r9.x, r9.x, -r9.y
+	add		r9.x, r9.x, r9.z
+	add		r9.x, r9.x, -v0.y
+	mad		oT3.xy, r8.xy, r9.x, r7.xy	;uv at W - R + bias
+	add		r9.y, r9.y, r9.y
+	mul		oT3.zw, r8.xyxy, r9.y		;uv step per unit B
 
     mul     oT4.xy, v0.xy, c10.y		;planar mapping front - crag detail
     mul     oT5.xy, v0.zy, c10.y		;planar mapping side - crag detail

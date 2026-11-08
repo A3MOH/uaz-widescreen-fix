@@ -21,12 +21,14 @@ const float4 DayColor : register(c5);
 const float4 Ambient : register(c7);
 const float4 Wet : register(c6);
 
-#define PUDDLE_TILE_A	90.0
-#define PUDDLE_TILE_B	37.0
+#define PUDDLE_TILE_A	22.5
+#define PUDDLE_TILE_B	9.25
 #define PUDDLE_EDGE		10.0
-#define WET_DARK		0.4
+#define WET_DARK		0.5
 #define PUDDLE_DARK		0.45
+#define DIP_WEIGHT	0.8
 #define SPEC_POW		64
+#define UNDER_SHARP		40.0
 
 struct PS_INPUT
 {
@@ -35,7 +37,7 @@ struct PS_INPUT
 	float2	uvColor : TEXCOORD0;
 	float2	uvDetail : TEXCOORD1;
 	float2	uvClouds : TEXCOORD2;
-	float2	uvWater : TEXCOORD3;
+	float4	uvWater : TEXCOORD3;
 	float2	uvCragF : TEXCOORD4;
 	float2	uvCragS : TEXCOORD5;
 	float4	ReflWater : TEXCOORD6;
@@ -49,10 +51,12 @@ float4 main( PS_INPUT i ): COLOR {
 	half4 Det2 = tex2D( sDetail2, i.uvDetail );
 	half4 Mask = tex2D( sMask, i.uvColor );
 	half Clouds = 1 - tex2D( sClouds, i.uvClouds ).a;
-	half WaterA = tex2D( sWaterDeep, i.uvWater ).a;
 	half4 Crag = lerp( tex2D( sCrag, i.uvCragF ), tex2D( sCrag, i.uvCragS ), i.Masks.a );
 	half4 P1 = tex2D( sPuddle, i.uvColor*PUDDLE_TILE_A );
 	half4 P2 = tex2D( sPuddle, i.uvColor*PUDDLE_TILE_B + 0.37 );
+	half4 Map = tex2D( sPuddle, i.uvColor );
+	half Dip = Map.r;
+	half WaterA = tex2D( sWaterDeep, i.uvWater.xy + Map.b*i.uvWater.zw ).a;
 
 	half4 Det = lerp( Det1, Det2, Mask.b );
 	half Shadow = Color.a*Clouds;
@@ -60,8 +64,11 @@ float4 main( PS_INPUT i ): COLOR {
 	half3 Base = Color.rgb*Light*lerp( Crag.rgb, Det.rgb, i.Masks.rgb );
 
 	half Wetness = Wet.x;
-	half Field = P1.a*0.55 + P2.g*0.3 + Mask.b*0.25;
+	half Field = Dip*DIP_WEIGHT + P1.a*0.18 + P2.g*0.12 + Mask.b*0.1;
 	half Puddle = saturate( (Field - 1 + Wetness*Wet.y*0.6)*PUDDLE_EDGE )*i.SunFlat.a*i.Masks.r;
+
+	// no puddles under lakes and rivers (shore height in Map.b, 0.5 = water level)
+	Puddle *= saturate( (Map.b - 0.5)*UNDER_SHARP );
 
 	Base *= (1 - Wetness*WET_DARK)*(1 - Puddle*PUDDLE_DARK);
 

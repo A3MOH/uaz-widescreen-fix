@@ -1,7 +1,7 @@
 public class CockpitLook
 {
 	static final String SWITCH_DIR = UIAspect.SWITCH_DIR;
-	static boolean s_bLookTurn = !new java.io.File(SWITCH_DIR + "no_look_turn.txt").exists();
+	static boolean s_bLookTurn = UIAspect.IniBool("cockpit", "look_turn", true);
 
 	static float[] s_aLookCfg = ReadLookCfg();
 	static float s_fLookYaw = 0.0f;
@@ -9,22 +9,9 @@ public class CockpitLook
 
 	static float[] ReadLookCfg()
 	{
-		float[] cfg = new float[] { 12.0f, 0.25f };
-		try
-		{
-			java.io.BufferedReader r = new java.io.BufferedReader(new java.io.FileReader(SWITCH_DIR + "look_turn.txt"));
-			String s = r.readLine();
-			r.close();
-			if (s != null)
-			{
-				java.util.StringTokenizer t = new java.util.StringTokenizer(s.trim());
-				for (int i = 0; i < cfg.length && t.hasMoreTokens(); i++)
-					cfg[i] = Float.parseFloat(t.nextToken());
-			}
-		}
-		catch (Throwable e)
-		{
-		}
+		float[] cfg = new float[] {
+			UIAspect.IniFloat("cockpit", "look_turn_angle", 12.0f),
+			UIAspect.IniFloat("cockpit", "look_turn_speed", 0.25f) };
 		cfg[0] = Math.max(-60.0f, Math.min(60.0f, cfg[0]));
 		cfg[1] = Math.max(0.0f, Math.min(5.0f, cfg[1]));
 		return cfg;

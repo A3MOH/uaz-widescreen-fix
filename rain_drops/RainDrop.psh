@@ -1,6 +1,7 @@
 regc( 0, "TFACTOR" )
 regc4f( 3, %ambient_r, %ambient_g, %ambient_b, %sunvisibility )
 regc4f( 5, %daycolor_r, %daycolor_g, %daycolor_b, %daycolor_a )
+regc4f( 6, %fogcolor_r, %fogcolor_g, %fogcolor_b, %fogcolor_a )
 
 hlsl("
 #include <common_hlsl.h>
@@ -11,6 +12,13 @@ samplerCUBE	sCubemap: register(s1);
 const float4 TFactor : register(c0);        // x - bend, y - glint, z - rim dark, w - opacity
 const float4 Ambient_Sun : register(c3);
 const float4 DayColor : register(c5);
+const float4 Fog : register(c6);
+
+// drop color: rgb multiplier for the view through the drop
+#define DROP_TINT float3( 1.0, 1.0, 0.5 )
+// weather: the drop picture is a clear-sky cubemap, so blend it toward the current fog color.
+// fogcolor_a is the weather fog-far factor (1 = clear, ~0.15 = rain), so the blend grows with fog.
+#define DROP_WEATHER	0.8
 
 struct PS_INPUT
 {
@@ -46,7 +54,8 @@ float4 main( PS_INPUT i ): COLOR {
 	float NdotE = saturate( dot(N, E) );
 	float3 R = 2*NdotE*N - E;
 
-	float3 Through = texCUBE( sCubemap, ToWorld(D, i) ).rgb;
+	float3 Through = texCUBE( sCubemap, ToWorld(D, i) ).rgb*DROP_TINT;
+	Through = lerp( Through, Fog.rgb, saturate(1 - Fog.a)*DROP_WEATHER );
 	float Fres = pow( 1 - NdotE*NdotE, 2 );
 
 	float Sun = Ambient_Sun.a;

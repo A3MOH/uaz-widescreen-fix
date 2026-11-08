@@ -73,8 +73,16 @@ VarFloat("RainDropsPercentage", 0.0)
 // Ground and car wetness (set by game code)
 VarFloat("wetness", 0.0)
 VarFloat("puddles", 1.0)
+VarFloat("watercam_x", 0.0)
+VarFloat("watercam_y", 0.0)
+VarFloat("watercam_z", 0.0)
 VarFloat("raintime", 0.0)
 VarFloat("rainnow", 0.0)
+VarFloat("bead_a_u", 0.0)
+VarFloat("bead_a_v", 0.0)
+VarFloat("bead_b_u", 0.0)
+VarFloat("bead_b_v", 0.0)
+VarFloat("bead_mix", 1.0)
 
 // Clouds texture
 VarString("cloudstexture", "Clouds.dds")
@@ -119,6 +127,12 @@ VarFloat("detailsize", 0.001)
 	VarFloat("waterscale", 0.0045)
 
     VarString("layerstexture", "Layers_N.dds")
+
+    VarString("puddletexture", "PuddleMap_P.dds")
+
+    VarFloat("shorelevel", 0.0)
+    VarFloat("shorerange", 0.0)
+    VarFloat("shorebias", 3.0)
 
 VarFloat("button_pulse_alpha", 1.0)
 
